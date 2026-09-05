@@ -1,0 +1,246 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AuctionPlatform {
+  COPART
+  IAAI
+}
+
+enum SyncStatus {
+  RUNNING
+  SUCCESS
+  PARTIAL
+  FAILED
+  SKIPPED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CLOSED
+  SPAM
+}
+
+enum SocialChannel {
+  TELEGRAM
+  FACEBOOK
+  INSTAGRAM
+  VIBER
+}
+
+enum PublicationStatus {
+  QUEUED
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  CANCELLED
+}
+
+enum PublicationDecision {
+  PENDING
+  APPROVED
+  EXCLUDED
+}
+
+model Vehicle {
+  id                  String                   @id @default(cuid())
+  identityKey         String                   @unique
+  externalId          String?
+  slug                String                   @unique
+  vin                 String?
+  lotNumber           String
+  platform            AuctionPlatform
+  title               String
+  year                Int?
+  make                String?
+  model               String?
+  trim                String?
+  vehicleType         String?
+  bodyStyle           String?
+  engine              String?
+  fuel                String?
+  transmission        String?
+  drive               String?
+  color               String?
+  odometerMiles       Int?
+  odometerKm          Int?
+  primaryDamage       String?
+  secondaryDamage     String?
+  lossType            String?
+  keysAvailable       Boolean?
+  runCondition        String?
+  currentBid          Int?
+  buyNowPrice         Int?
+  estimatedValue      Int?
+  lastSoldPrice       Int?
+  auctionDate         DateTime?
+  auctionStatus       String?
+  seller              String?
+  sellerType          String?
+  facility            String?
+  city                String?
+  state               String?
+  zip                 String?
+  latitude            Float?
+  longitude           Float?
+  saleDocument        String?
+  titleType           String?
+  sourceUrl           String?
+  videoUrl            String?
+  media360Url         String?
+  isDemo              Boolean                  @default(false)
+  isActive            Boolean                  @default(true)
+  publicationDecision PublicationDecision      @default(PENDING)
+  rawData             Json
+  lastSyncedAt        DateTime
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+  photos              VehiclePhoto[]
+  leads               Lead[]
+  socialPublications  SocialPublication[]
+  socialErrors        SocialPublicationError[]
+
+  @@index([isActive, auctionDate])
+  @@index([make, model])
+  @@index([platform, auctionStatus])
+  @@index([currentBid])
+}
+
+model VehiclePhoto {
+  id        String   @id @default(cuid())
+  vehicleId String
+  url       String
+  alt       String?
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@unique([vehicleId, url])
+  @@index([vehicleId, position])
+}
+
+model AuctionSyncLog {
+  id              String     @id @default(cuid())
+  startedAt       DateTime   @default(now())
+  finishedAt      DateTime?
+  provider        String
+  endpoint        String
+  status          SyncStatus @default(RUNNING)
+  apiRequests     Int        @default(0)
+  receivedRecords Int        @default(0)
+  createdRecords  Int        @default(0)
+  updatedRecords  Int        @default(0)
+  errorMessage    String?
+  createdAt       DateTime   @default(now())
+
+  @@index([startedAt])
+}
+
+model Lead {
+  id            String     @id @default(cuid())
+  name          String
+  phone         String
+  messenger     String?
+  interest      String?
+  vehicleId     String?
+  vin           String?
+  lotNumber     String?
+  vehicleTitle  String?
+  vehicleUrl    String?
+  source        String?
+  sourceChannel String?
+  utmSource     String?
+  utmMedium     String?
+  utmCampaign   String?
+  utmContent    String?
+  status        LeadStatus @default(NEW)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  vehicle       Vehicle?   @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+}
+
+model SocialPublication {
+  id              String                   @id @default(cuid())
+  vehicleId       String
+  channel         SocialChannel
+  status          PublicationStatus        @default(QUEUED)
+  externalPostId  String?
+  externalPostUrl String?
+  postText        String?
+  scheduledAt     DateTime?
+  publishedAt     DateTime?
+  errorCode       String?
+  errorMessage    String?
+  retryCount      Int                      @default(0)
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  vehicle         Vehicle                  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  errors          SocialPublicationError[]
+
+  @@unique([vehicleId, channel])
+  @@index([status, scheduledAt])
+  @@index([channel, publishedAt])
+}
+
+model SocialPublicationError {
+  id            String             @id @default(cuid())
+  publicationId String?
+  vehicleId     String
+  channel       SocialChannel
+  errorCode     String?
+  errorMessage  String
+  retryCount    Int                @default(0)
+  timestamp     DateTime           @default(now())
+  publication   SocialPublication? @relation(fields: [publicationId], references: [id], onDelete: SetNull)
+  vehicle       Vehicle            @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([timestamp])
+  @@index([channel, vehicleId])
+}
+
+model SocialTemplate {
+  id        String        @id @default(cuid())
+  channel   SocialChannel @unique
+  body      String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model SocialChannelSetting {
+  id          String        @id @default(cuid())
+  channel     SocialChannel @unique
+  enabled     Boolean       @default(false)
+  dailyLimit  Int           @default(1)
+  timeWindows Json
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String?
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}

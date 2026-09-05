@@ -1,0 +1,6 @@
+{
+  "crons": [
+    { "path": "/api/cron/auction-sync", "schedule": "17 1,13 * * *" },
+    { "path": "/api/cron/autoposting", "schedule": "*/15 * * * *" }
+  ]
+}
