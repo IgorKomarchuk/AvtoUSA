@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, CalendarDays, Gauge, MapPin, Wrench } from "lucide-react";
+import { ArrowUpRight, Gauge, MapPin, Wrench } from "lucide-react";
 import type { VehicleData } from "@/lib/types";
-import { auctionCountdown, formatDate, formatNumber, formatUsd, vehicleFreshness } from "@/lib/format";
+import { formatNumber, formatUsd, vehicleFreshness } from "@/lib/format";
 import { Badge } from "./ui/badge";
 import { buttonStyles } from "./ui/button";
 import { vehicleSocialUrl } from "@/lib/social-template";
 import type { SocialChannel } from "@prisma/client";
+import { AuctionSchedule } from "./auction-schedule";
 
 export function VehicleCard({ vehicle, priority = false, sourceChannel }: { vehicle: VehicleData; priority?: boolean; sourceChannel?: SocialChannel }) {
   const image = vehicle.photos[0]?.url ?? "/assets/hero-car.png";
@@ -22,7 +23,6 @@ export function VehicleCard({ vehicle, priority = false, sourceChannel }: { vehi
           <Badge>{vehicle.platform}</Badge>
           {freshness && <Badge className="border-sky-300/30 bg-sky-500/85">{freshness}</Badge>}
         </div>
-        {auctionCountdown(vehicle.auctionDate) && <span className="absolute bottom-3 left-4 text-xs font-bold text-white/85">{auctionCountdown(vehicle.auctionDate)}</span>}
       </Link>
       <div className="flex flex-1 flex-col p-5">
         <p className="text-[11px] font-black uppercase tracking-[.13em] text-[#ff7b1a]">{vehicle.year} · Lot #{vehicle.lotNumber}</p>
@@ -31,7 +31,7 @@ export function VehicleCard({ vehicle, priority = false, sourceChannel }: { vehi
           <span className="flex items-center gap-2"><Gauge size={14} />{formatNumber(vehicle.odometerMiles)} mi</span>
           <span className="flex items-center gap-2"><Wrench size={14} />{vehicle.primaryDamage ?? "—"}</span>
           <span className="flex items-center gap-2"><MapPin size={14} />{[vehicle.state, vehicle.city].filter(Boolean).join(" · ") || "—"}</span>
-          <span className="flex items-center gap-2"><CalendarDays size={14} />{formatDate(vehicle.auctionDate)}</span>
+          <AuctionSchedule auctionDate={vehicle.auctionDate} compact />
         </div>
         <div className="mt-5 flex items-end justify-between gap-4">
           <div>

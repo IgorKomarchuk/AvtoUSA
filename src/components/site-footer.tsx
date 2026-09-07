@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Instagram, MessageCircle } from "lucide-react";
+import { Instagram, Mail, MessageCircle } from "lucide-react";
 
 export function SiteFooter() {
   return (
@@ -24,7 +24,8 @@ export function SiteFooter() {
           </div>
           <div>
             <h2 className="text-xs font-black uppercase tracking-[.14em] text-white/40">Зв’язок</h2>
-            <a className="mt-4 block text-lg font-bold no-underline" href="tel:+380671234567">+38 067 123 45 67</a>
+            <a className="mt-4 block text-lg font-bold no-underline" href="tel:+380732610965" aria-label="Зателефонувати +38 073 261 09 65">+38 073 261 09 65</a>
+            <a className="mt-3 flex items-center gap-2 break-all text-sm text-white/65 no-underline transition hover:text-white" href="mailto:racenkodmitrij8@gmail.com"><Mail size={16} className="shrink-0 text-[#ff7b1a]" />racenkodmitrij8@gmail.com</a>
             <div className="mt-4 flex gap-2">
               <a href="https://t.me/" target="_blank" rel="noreferrer" className="grid size-11 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white" aria-label="Telegram"><MessageCircle size={18} /></a>
               <a href="https://instagram.com/" target="_blank" rel="noreferrer" className="grid size-11 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white" aria-label="Instagram"><Instagram size={18} /></a>

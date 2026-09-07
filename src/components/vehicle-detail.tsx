@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, ExternalLink, MapPin, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ExternalLink, MapPin, ShieldCheck } from "lucide-react";
 import type { VehicleData } from "@/lib/types";
-import { formatDate, formatNumber, formatUsd } from "@/lib/format";
+import { formatDateTime, formatNumber, formatUsd } from "@/lib/format";
 import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 import { VehicleGallery } from "./vehicle-gallery";
@@ -10,6 +10,7 @@ import { buttonStyles } from "./ui/button";
 import { TurnkeyCalculator } from "./turnkey-calculator";
 import { LeadForm } from "./lead-form";
 import { DemoNotice } from "./demo-notice";
+import { AuctionSchedule } from "./auction-schedule";
 
 export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
   const specs = [
@@ -18,7 +19,7 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
     ["Колір", vehicle.color], ["Пробіг", vehicle.odometerMiles == null ? null : `${formatNumber(vehicle.odometerMiles)} mi / ${formatNumber(vehicle.odometerKm)} км`],
     ["Ключі", vehicle.keysAvailable == null ? null : vehicle.keysAvailable ? "Є" : "Немає"], ["Run & Drive", vehicle.runCondition], ["Основне пошкодження", vehicle.primaryDamage],
     ["Додаткове пошкодження", vehicle.secondaryDamage], ["Документ", vehicle.saleDocument], ["Продавець", vehicle.seller], ["Аукціон", vehicle.platform],
-    ["Місце аукціону", [vehicle.state, vehicle.city, vehicle.facility].filter(Boolean).join(" · ")], ["Дата торгів", formatDate(vehicle.auctionDate)],
+    ["Місце аукціону", [vehicle.state, vehicle.city, vehicle.facility].filter(Boolean).join(" · ")], ["Дата й час торгів", formatDateTime(vehicle.auctionDate, "uk-UA", "Europe/Kyiv")],
   ];
   const displayPrice = vehicle.buyNowPrice ?? vehicle.currentBid;
   return (
@@ -34,7 +35,8 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
               <h1 className="mt-5 text-[clamp(2.2rem,4vw,4rem)] font-bold leading-[.98] tracking-[-.055em]">{vehicle.title}</h1>
               <div className="mt-5 grid gap-2 text-sm text-white/50"><p>VIN: <strong className="text-white/85">{vehicle.vin ?? "—"}</strong></p><p>Lot #: <strong className="text-white/85">{vehicle.lotNumber}</strong></p></div>
               <div className="mt-7 border-y border-white/10 py-6"><p className="text-xs text-white/45">{vehicle.buyNowPrice ? "Купити зараз" : "Поточна ставка"}</p><p className="mt-1 text-5xl font-black tracking-[-.065em]">{formatUsd(displayPrice)}</p>{vehicle.buyNowPrice && vehicle.currentBid && <p className="mt-2 text-sm text-white/45">Поточна ставка: {formatUsd(vehicle.currentBid)}</p>}</div>
-              <div className="mt-6 grid gap-3 text-sm text-white/60"><p className="flex items-center gap-2"><CalendarDays size={16} className="text-[#ff7b1a]" />{formatDate(vehicle.auctionDate)}</p><p className="flex items-center gap-2"><MapPin size={16} className="text-[#ff7b1a]" />{[vehicle.state, vehicle.city].filter(Boolean).join(" · ") || "Уточнюється"}</p><p className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#ff7b1a]" />{vehicle.auctionStatus ?? "Статус уточнюється"}</p></div>
+              <div className="mt-6"><AuctionSchedule auctionDate={vehicle.auctionDate} /></div>
+              <div className="mt-4 grid gap-3 text-sm text-white/60"><p className="flex items-center gap-2"><MapPin size={16} className="text-[#ff7b1a]" />{[vehicle.state, vehicle.city].filter(Boolean).join(" · ") || "Уточнюється"}</p><p className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#ff7b1a]" />{vehicle.auctionStatus ?? "Статус уточнюється"}</p></div>
               <div className="mt-7 grid gap-3"><a href="#quote" className={buttonStyles("primary")}>Розрахувати вартість в Україні</a><a href="#lead" className={buttonStyles("secondary")}>Замовити автомобіль</a>{vehicle.sourceUrl && !vehicle.isDemo && <a href={vehicle.sourceUrl} target="_blank" rel="nofollow noreferrer" className={`${buttonStyles("ghost")} text-xs`}>Джерело лота <ExternalLink size={14} /></a>}</div>
             </div>
           </aside>

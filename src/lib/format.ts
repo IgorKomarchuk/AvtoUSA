@@ -21,7 +21,7 @@ export function formatDate(value?: Date | string | null, locale = "uk-UA") {
   }).format(new Date(value));
 }
 
-export function formatDateTime(value?: Date | string | null, locale = "uk-UA") {
+export function formatDateTime(value?: Date | string | null, locale = "uk-UA", timeZone?: string) {
   if (!value) return "Немає даних";
   return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
@@ -29,6 +29,7 @@ export function formatDateTime(value?: Date | string | null, locale = "uk-UA") {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone,
   }).format(new Date(value));
 }
 
