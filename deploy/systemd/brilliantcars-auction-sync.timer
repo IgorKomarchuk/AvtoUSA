@@ -1,0 +1,12 @@
+[Unit]
+Description=Run BRILLIANTCARS auction sync twice daily
+
+[Timer]
+OnCalendar=*-*-* 01,13:17:00 Europe/Kyiv
+Persistent=true
+RandomizedDelaySec=5m
+Unit=brilliantcars-auction-sync.service
+
+[Install]
+WantedBy=timers.target
+

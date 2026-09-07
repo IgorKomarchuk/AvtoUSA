@@ -13,7 +13,7 @@ export function AdminShell({ children, title, description }: { children: React.R
     <div className="min-h-screen bg-[#090a09]">
       <header className="border-b border-white/10 bg-[#0c0e0c]">
         <div className="shell flex min-h-20 flex-wrap items-center justify-between gap-4 py-3">
-          <Link href="/admin" className="text-xl font-black tracking-[-.04em] no-underline">DRIVE<span className="text-[#ff6b00]">STATE</span> <span className="ml-2 text-xs text-white/35">ADMIN</span></Link>
+          <Link href="/admin" className="text-xl font-black tracking-[-.04em] no-underline">BRILLIANT<span className="text-[#ff6b00]">CARS</span> <span className="ml-2 text-xs text-white/35">ADMIN</span></Link>
           <nav className="flex flex-wrap items-center gap-2 text-sm">
             {navItems.map(({ href, label, Icon }) => <Link key={href} href={href} className="premium-focus flex items-center gap-2 rounded-xl px-3 py-2 text-white/60 no-underline hover:bg-white/[.06] hover:text-white"><Icon size={15} />{label}</Link>)}
             <Link href="/cars" className="premium-focus flex items-center gap-2 rounded-xl px-3 py-2 text-white/60 no-underline hover:bg-white/[.06] hover:text-white"><CarFront size={15} />Каталог <ExternalLink size={13} /></Link>

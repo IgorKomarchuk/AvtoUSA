@@ -38,7 +38,7 @@ export function HomePage({ catalog }: { catalog: VehiclePageResult }) {
         </section>
 
         <section className="border-y border-white/[.07] bg-white/[.018] py-20 sm:py-28">
-          <div className="shell"><div className="eyebrow">Чому DRIVE STATE</div><h2 className="section-title">Контроль угоди замість здогадок</h2><div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">{advantages.map(([Icon, title, text]) => <article key={title} className="rounded-3xl border border-white/10 bg-[#0e100e] p-6"><Icon className="text-[#ff7b1a]" size={25} /><h3 className="mt-7 text-xl font-bold tracking-[-.035em]">{title}</h3><p className="mt-3 text-sm leading-6 text-white/48">{text}</p></article>)}</div></div>
+          <div className="shell"><div className="eyebrow">Чому BRILLIANTCARS</div><h2 className="section-title">Контроль угоди замість здогадок</h2><div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">{advantages.map(([Icon, title, text]) => <article key={title} className="rounded-3xl border border-white/10 bg-[#0e100e] p-6"><Icon className="text-[#ff7b1a]" size={25} /><h3 className="mt-7 text-xl font-bold tracking-[-.035em]">{title}</h3><p className="mt-3 text-sm leading-6 text-white/48">{text}</p></article>)}</div></div>
         </section>
 
         <section id="calculator" className="scroll-mt-24 py-20 sm:py-28"><div className="shell"><div className="eyebrow">Попередній розрахунок</div><h2 className="section-title">Зрозумійте бюджет до початку торгів</h2><div className="mt-10"><TurnkeyCalculator /></div></div></section>

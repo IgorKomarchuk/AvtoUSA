@@ -12,7 +12,7 @@ export async function sendLeadToTelegram(lead: LeadInput) {
   if (!token || !chatId) return { delivered: false, reason: "not_configured" as const };
 
   const text = [
-    "<b>Нова заявка із сайту DRIVE STATE</b>",
+    "<b>Нова заявка із сайту BRILLIANTCARS</b>",
     `Ім’я: ${escapeHtml(lead.name)}`,
     `Телефон: ${escapeHtml(lead.phone)}`,
     `Месенджер: ${escapeHtml(lead.messenger)}`,

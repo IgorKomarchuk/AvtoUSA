@@ -8,7 +8,7 @@ const benefits = ["Перевірка VIN", "Прозора вартість", "
 export function Hero() {
   return (
     <section className="relative min-h-[760px] overflow-hidden border-b border-white/[.06]">
-      <Image src="/assets/hero-car.png" alt="Преміальний автомобіль DRIVE STATE" fill priority sizes="100vw" className="object-cover object-[64%_center]" />
+      <Image src="/assets/hero-car.png" alt="Преміальний автомобіль BRILLIANTCARS" fill priority sizes="100vw" className="object-cover object-[64%_center]" />
       <div className="absolute inset-0 bg-[linear-gradient(90deg,#050605_0%,rgba(5,6,5,.96)_32%,rgba(5,6,5,.35)_68%,rgba(5,6,5,.15)_100%)]" />
       <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-[#070807] to-transparent" />
       <div className="shell relative z-10 flex min-h-[760px] items-center py-24">

@@ -21,8 +21,8 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/[.07] bg-[#070807]/85 backdrop-blur-2xl">
       <div className="shell flex h-[76px] items-center justify-between gap-4">
-        <Link href="/" className="premium-focus rounded-lg text-xl font-black tracking-[-.045em] no-underline" aria-label="DRIVE STATE — головна">
-          DRIVE<span className="text-[#ff6b00]">STATE</span>
+        <Link href="/" className="premium-focus rounded-lg text-xl font-black tracking-[-.045em] no-underline" aria-label="BRILLIANTCARS — головна">
+          BRILLIANT<span className="text-[#ff6b00]">CARS</span>
         </Link>
         <nav className="hidden items-center gap-5 xl:flex" aria-label="Основна навігація">
           {nav.map(([label, href]) => <Link key={href} href={href} className="premium-focus rounded-md text-[13px] font-semibold text-white/65 no-underline transition hover:text-white">{label}</Link>)}

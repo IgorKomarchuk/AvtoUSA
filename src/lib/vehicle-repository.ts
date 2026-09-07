@@ -5,6 +5,7 @@ import { getPrisma } from "./prisma";
 import type { VehicleData, VehicleFilters, VehiclePageResult } from "./types";
 
 function filterMockVehicles(filters: VehicleFilters) {
+  if (process.env.MOCK_AUCTION_MODE === "false") return [];
   const search = filters.search?.toLowerCase().trim();
   return mockVehicles.filter((vehicle) => {
     const haystack = `${vehicle.vin} ${vehicle.lotNumber} ${vehicle.make} ${vehicle.model} ${vehicle.title}`.toLowerCase();
@@ -50,6 +51,7 @@ export async function getVehicles(filters: VehicleFilters = {}): Promise<Vehicle
     const search = filters.search?.trim();
     const where = {
       isActive: true,
+      ...(process.env.MOCK_AUCTION_MODE === "false" ? { isDemo: false } : {}),
       ...(search
         ? {
             OR: [
@@ -85,7 +87,7 @@ export async function getVehicles(filters: VehicleFilters = {}): Promise<Vehicle
       prisma.vehicle.findFirst({ where: { isActive: true }, orderBy: { lastSyncedAt: "desc" }, select: { lastSyncedAt: true } }),
     ]);
     if (!vehicles.length && process.env.MOCK_AUCTION_MODE !== "false") return getVehiclesWithoutDatabase(filters);
-    return { vehicles: vehicles as VehicleData[], total, page, pageSize, isDemo: vehicles.every((item) => item.isDemo), lastSyncedAt: latest?.lastSyncedAt ?? null };
+    return { vehicles: vehicles as VehicleData[], total, page, pageSize, isDemo: vehicles.length > 0 && vehicles.every((item) => item.isDemo), lastSyncedAt: latest?.lastSyncedAt ?? null };
   } catch {
     return getVehiclesWithoutDatabase(filters);
   }
@@ -108,7 +110,7 @@ export async function getVehicleBySlug(slug: string) {
       // Database fallback is intentional for local/mock mode.
     }
   }
-  return mockVehicles.find((vehicle) => vehicle.slug === slug) ?? null;
+  return process.env.MOCK_AUCTION_MODE === "false" ? null : mockVehicles.find((vehicle) => vehicle.slug === slug) ?? null;
 }
 
 export async function getCatalogFacets() {

@@ -67,7 +67,8 @@ function dateValue(...values: unknown[]) {
 }
 
 function mediaUrls(media: UnknownRecord) {
-  const candidates = [media.photos, media.images, media.full, media.thumbnails].flatMap((value) =>
+  const items = Array.isArray(media.items) ? media.items.filter((item) => record(item).type === "image") : [];
+  const candidates = [items, media.photos, media.images, media.full, media.thumbnails].flatMap((value) =>
     Array.isArray(value) ? value : [],
   );
   return candidates
@@ -118,18 +119,18 @@ export function mapApibaraVehicle(input: unknown): VehicleData {
     trim: stringValue(raw.trim, specs.trim),
     vehicleType: stringValue(raw.type, raw.vehicle_type),
     bodyStyle: stringValue(specs.body_style, raw.body_style),
-    engine: stringValue(specs.engine, raw.engine),
+    engine: stringValue(record(specs.engine).raw, specs.engine, raw.engine),
     fuel: stringValue(specs.fuel_type, raw.fuel_type),
     transmission: stringValue(specs.transmission, raw.transmission),
     drive: stringValue(specs.drive_type, raw.drive_type),
-    color: stringValue(specs.color, raw.color),
+    color: stringValue(specs.exterior_color, specs.color, raw.color),
     odometerMiles: miles,
     odometerKm: kilometers,
     primaryDamage: stringValue(condition.primary_damage, raw.damage),
     secondaryDamage: stringValue(condition.secondary_damage),
     lossType: stringValue(condition.loss_type),
     keysAvailable: booleanValue(condition.has_key, raw.has_key),
-    runCondition: stringValue(condition.run_condition, condition.run_cond, raw.run_cond),
+    runCondition: stringValue(record(condition.run_condition).value, condition.run_condition, condition.run_cond, raw.run_cond),
     currentBid: numberValue(pricing.current_bid_usd, raw.current_bid),
     buyNowPrice: numberValue(pricing.buy_now_usd, raw.buy_now_price),
     estimatedValue: numberValue(pricing.estimated_value_usd, pricing.estimated_retail_value_usd),
@@ -139,7 +140,7 @@ export function mapApibaraVehicle(input: unknown): VehicleData {
     seller: stringValue(seller.name, raw.seller),
     sellerType: stringValue(seller.type, seller.seller_type),
     facility: stringValue(facility.name, location.display, location.office_name),
-    city: stringValue(facility.city, location.city),
+    city: stringValue(facility.city, location.city, location.send_from),
     state: stringValue(facility.state, facility.state_code, location.state),
     zip: stringValue(facility.zip, location.zip),
     latitude: floatValue(facility.latitude, location.latitude),
@@ -204,10 +205,10 @@ export class ApibaraClient {
     const response = await this.request<{ ok?: boolean; data?: UnknownRecord }>("/usage");
     const data = record(response.data);
     return {
-      plan: stringValue(data.plan, data.plan_name),
-      used: numberValue(data.used, data.requests_used, data.usage),
-      remaining: numberValue(data.remaining, data.requests_remaining),
-      limit: numberValue(data.limit, data.monthly_limit, data.requests_limit),
+      plan: stringValue(record(data.plan).name, data.plan, data.plan_name),
+      used: numberValue(record(data.quota).used, data.used, data.requests_used, data.usage),
+      remaining: numberValue(record(data.quota).left, data.remaining, data.requests_remaining),
+      limit: numberValue(record(data.quota).limit, data.limit, data.monthly_limit, data.requests_limit),
       updatedAt: new Date(),
     };
   }

@@ -13,7 +13,8 @@ async function main() {
   await prisma.adminUser.upsert({
     where: { email },
     create: { email, passwordHash: await hash(password, 12), name: "Administrator" },
-    update: { passwordHash: await hash(password, 12), isActive: true },
+    // Initial credentials must not overwrite a password changed later.
+    update: { isActive: true },
   });
   await prisma.$transaction([
     prisma.siteSetting.upsert({ where: { key: "autopost_mode" }, create: { key: "autopost_mode", value: "manual" }, update: {} }),
