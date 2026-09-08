@@ -18,6 +18,7 @@ module.exports = {
       node_args: "--conditions=react-server --import ./scripts/tsx-runtime-shim.mjs --import tsx",
       cwd: __dirname,
       instances: 1,
+      exec_mode: "fork",
       autorestart: true,
       max_memory_restart: "450M",
       time: true,
