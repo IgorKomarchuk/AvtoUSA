@@ -10,10 +10,13 @@ export function GoogleConsentBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(!window.localStorage.getItem(STORAGE_KEY));
+    const initialCheck = window.setTimeout(() => setVisible(!window.localStorage.getItem(STORAGE_KEY)), 0);
     const reopen = () => setVisible(true);
     window.addEventListener("brilliantcars:consent-settings", reopen);
-    return () => window.removeEventListener("brilliantcars:consent-settings", reopen);
+    return () => {
+      window.clearTimeout(initialCheck);
+      window.removeEventListener("brilliantcars:consent-settings", reopen);
+    };
   }, []);
 
   function save(value: "all" | "necessary") {

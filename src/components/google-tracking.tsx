@@ -33,7 +33,7 @@ ${adsActive ? `gtag('config',${JSON.stringify(settings.googleAdsId)});` : ""}
 
   return (
     <>
-      <Script id="google-consent-and-config" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: bootstrap }} />
+      <script id="google-consent-and-config" dangerouslySetInnerHTML={{ __html: bootstrap }} />
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(primaryId)}`} strategy="afterInteractive" />
       <GooglePageView />
       {settings.consentBannerEnabled && <GoogleConsentBanner />}
