@@ -8,9 +8,9 @@ const benefits = ["Перевірка VIN", "Прозора вартість", "
 export function Hero() {
   return (
     <section className="hero-bright relative min-h-[650px] overflow-hidden border-b border-white/[.08] sm:min-h-[720px] lg:min-h-[760px]">
-      <Image src="/assets/hero-car.png" alt="Преміальний автомобіль BRILLIANTCARS" fill priority sizes="100vw" className="object-cover object-[72%_center] sm:object-[64%_center]" />
+      <Image src="/assets/hero-car.png" alt="Преміальний автомобіль BRILLIANTCARS" fill priority sizes="100vw" className="object-cover object-[72%_center] brightness-[1.2] contrast-[.94] saturate-[.92] sm:object-[64%_center]" />
       <div className="hero-veil absolute inset-0" />
-      <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#24241f] via-[#22221e]/70 to-transparent sm:h-64" />
+      <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-[#35352f] via-[#303029]/72 to-transparent sm:h-72" />
       <div className="shell relative z-10 flex min-h-[650px] min-w-0 items-center py-16 sm:min-h-[720px] sm:py-24 lg:min-h-[760px]">
         <div className="w-full min-w-0 max-w-3xl animate-rise">
           <div className="eyebrow">Copart · IAAI · доставка в Україну</div>

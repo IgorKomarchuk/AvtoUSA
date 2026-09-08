@@ -20,11 +20,27 @@ export function VehicleCard({ vehicle, priority = false, sourceChannel }: { vehi
   const openDialog = () => setOpen(true);
   useEffect(() => {
     if (!open) return;
-    const previous = document.body.style.overflow;
+    const scrollY = window.scrollY;
+    const previous = {
+      overflow: document.body.style.overflow,
+      position: document.body.style.position,
+      top: document.body.style.top,
+      width: document.body.style.width,
+    };
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
     const close = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
     window.addEventListener("keydown", close);
-    return () => { document.body.style.overflow = previous; window.removeEventListener("keydown", close); };
+    return () => {
+      document.body.style.overflow = previous.overflow;
+      document.body.style.position = previous.position;
+      document.body.style.top = previous.top;
+      document.body.style.width = previous.width;
+      window.scrollTo({ top: scrollY, behavior: "instant" });
+      window.removeEventListener("keydown", close);
+    };
   }, [open]);
 
   return <>
@@ -43,8 +59,8 @@ export function VehicleCard({ vehicle, priority = false, sourceChannel }: { vehi
         <div className="mt-4 grid gap-2 min-[390px]:grid-cols-2"><button type="button" className={buttonStyles("secondary")}>Дізнатися деталі</button><button type="button" className={buttonStyles("primary")}>Отримати розрахунок</button></div>
       </div>
     </article>
-    {open&&<div className="fixed inset-0 z-[100] grid items-start overflow-y-auto overscroll-contain bg-black/80 p-2 backdrop-blur-md sm:place-items-center sm:p-6" role="presentation" onMouseDown={(event)=>{if(event.target===event.currentTarget)setOpen(false)}}>
-      <section role="dialog" aria-modal="true" aria-labelledby={`lead-${vehicle.id}`} className="relative my-2 w-full min-w-0 max-w-2xl max-h-[calc(100dvh-1rem)] overflow-y-auto overflow-x-hidden rounded-[24px] border border-white/15 bg-[#101210] shadow-[0_30px_100px_rgba(0,0,0,.7)] sm:my-0 sm:max-h-[calc(100dvh-3rem)] sm:rounded-[30px]">
+    {open&&<div className="fixed inset-0 z-[100] flex w-screen items-end justify-center overflow-hidden overscroll-contain bg-black/80 p-2 backdrop-blur-md sm:items-center sm:p-6" role="presentation" onMouseDown={(event)=>{if(event.target===event.currentTarget)setOpen(false)}}>
+      <section role="dialog" aria-modal="true" aria-labelledby={`lead-${vehicle.id}`} className="relative w-[calc(100vw-1rem)] min-w-0 max-w-2xl max-h-[calc(100dvh-1rem)] overflow-y-auto overflow-x-hidden rounded-[24px] border border-white/15 bg-[#101210] shadow-[0_30px_100px_rgba(0,0,0,.7)] [scrollbar-gutter:stable] sm:w-full sm:max-h-[calc(100dvh-3rem)] sm:rounded-[30px]">
         <button type="button" onClick={()=>setOpen(false)} className="premium-focus absolute right-3 top-3 z-10 grid size-10 place-items-center rounded-full border border-white/15 bg-black/70 sm:right-4 sm:top-4 sm:size-11" aria-label="Закрити"><X size={20}/></button>
         <div className="grid min-w-0 sm:grid-cols-[.8fr_1.2fr]">
           <div className="relative min-h-40 min-w-0 bg-black sm:min-h-52">
@@ -56,9 +72,9 @@ export function VehicleCard({ vehicle, priority = false, sourceChannel }: { vehi
               <p className="mt-1 text-base font-black sm:mt-2 sm:text-lg">{formatUsd(vehicle.buyNowPrice??vehicle.currentBid)}</p>
             </div>
           </div>
-          <div className="min-w-0 p-4 sm:p-7 sm:pt-16">
+          <div className="min-w-0 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 sm:p-7 sm:pt-16">
             <p className="text-[11px] font-black uppercase tracking-[.13em] text-[#ff7b1a] sm:text-xs">Дізнатися деталі</p>
-            <h3 className="mt-2 break-words text-[1.7rem] font-bold leading-[1.05] tracking-[-.04em] sm:text-2xl">Залиште номер — ми все перевіримо</h3>
+            <h3 className="mt-2 max-w-full break-words text-[clamp(1.45rem,7vw,1.7rem)] font-bold leading-[1.08] tracking-[-.04em] sm:text-2xl">Залиште номер — ми все перевіримо</h3>
             <p className="mt-3 text-sm leading-6 text-white/50">Менеджер уточнить стан лота, витрати та зв’яжеться з вами найближчим часом.</p>
             <div className="mt-4 sm:mt-5"><LeadForm compact vehicle={{vehicleId:vehicle.id,vin:vehicle.vin,lotNumber:vehicle.lotNumber,vehicleTitle:vehicle.title,price:formatUsd(vehicle.buyNowPrice??vehicle.currentBid),vehicleUrl:detailUrl,source:"vehicle_card"}}/></div>
           </div>

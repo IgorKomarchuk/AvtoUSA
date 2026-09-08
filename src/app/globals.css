@@ -104,22 +104,28 @@ button, a { -webkit-tap-highlight-color: transparent; }
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 72% 24%, rgba(255, 205, 160, .22), transparent 31rem),
-    linear-gradient(180deg, rgba(255, 255, 255, .055), transparent 45%);
+    radial-gradient(circle at 72% 22%, rgba(255, 218, 183, .34), transparent 34rem),
+    linear-gradient(180deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .035) 48%, transparent 72%);
   mix-blend-mode: screen;
 }
 .hero-veil {
   background:
-    linear-gradient(90deg, rgba(47, 47, 41, .93) 0%, rgba(40, 40, 35, .78) 38%, rgba(18, 19, 17, .24) 73%, rgba(8, 9, 8, .06) 100%),
-    linear-gradient(180deg, rgba(255, 255, 255, .04) 0%, transparent 58%, rgba(23, 24, 21, .42) 100%);
+    linear-gradient(90deg, rgba(51, 50, 44, .72) 0%, rgba(45, 44, 39, .56) 40%, rgba(25, 25, 22, .18) 74%, rgba(8, 9, 8, .02) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, .09) 0%, rgba(255, 255, 255, .025) 46%, rgba(29, 29, 25, .38) 100%);
 }
 .home-auction-transition {
   background:
-    radial-gradient(circle at 12% 5%, rgba(255, 255, 255, .1), transparent 26rem),
+    radial-gradient(circle at 12% 5%, rgba(255, 255, 255, .15), transparent 28rem),
     radial-gradient(circle at 88% 18%, rgba(255, 107, 0, .09), transparent 28rem),
-    linear-gradient(180deg, #24241f 0%, #191a17 24%, #0e0f0d 62%, #070807 100%);
+    linear-gradient(180deg, #35352f 0%, #292923 24%, #141512 62%, #070807 100%);
 }
 .advantages-stage { box-shadow: 0 30px 90px rgba(0, 0, 0, .34), inset 0 1px rgba(255, 255, 255, .05); }
+.advantages-heading {
+  opacity: 0;
+  transform: translate3d(-42px, 0, 0);
+  transition: opacity .75s cubic-bezier(.2,.8,.2,1), transform .75s cubic-bezier(.2,.8,.2,1);
+}
+.advantages-stage.is-visible .advantages-heading { opacity: 1; transform: translate3d(0, 0, 0); }
 .advantage-row {
   position: relative;
   display: grid;
@@ -129,7 +135,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   border-bottom: 1px solid rgba(255, 255, 255, .09);
   opacity: 0;
   filter: blur(8px);
-  transition: opacity .65s cubic-bezier(.2,.8,.2,1), transform .65s cubic-bezier(.2,.8,.2,1), filter .65s ease;
+  transition: opacity .78s cubic-bezier(.2,.8,.2,1), transform .78s cubic-bezier(.2,.8,.2,1), filter .72s ease;
   will-change: transform, opacity;
 }
 .advantage-row.from-left { transform: translate3d(-54px, 0, 0); }
@@ -151,8 +157,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .advantage-row { grid-template-columns: 5rem 1fr; min-height: 10rem; }
   .hero-veil {
     background:
-      linear-gradient(90deg, rgba(38, 38, 34, .9) 0%, rgba(35, 35, 31, .72) 58%, rgba(12, 13, 12, .28) 100%),
-      linear-gradient(180deg, rgba(255, 255, 255, .06) 0%, transparent 50%, rgba(28, 29, 25, .72) 100%);
+      linear-gradient(90deg, rgba(47, 46, 41, .68) 0%, rgba(42, 41, 36, .5) 58%, rgba(15, 16, 14, .2) 100%),
+      linear-gradient(180deg, rgba(255, 255, 255, .12) 0%, rgba(255, 255, 255, .025) 48%, rgba(38, 38, 33, .7) 100%);
   }
 }
 
