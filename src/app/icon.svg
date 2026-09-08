@@ -1,15 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <linearGradient id="bg" x1="8" y1="4" x2="58" y2="62" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#171a18"/>
-      <stop offset="1" stop-color="#050605"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="16" y1="12" x2="50" y2="54" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#ff9a3d"/>
-      <stop offset="1" stop-color="#ff5a00"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="15" fill="url(#bg)"/>
-  <path d="M17 14h18c9 0 14 4.2 14 10.8 0 4.2-2.3 7.4-6.1 9 5.2 1.4 8.1 5 8.1 10.1C51 52 44.8 56 35 56H17V14Zm10 8v8.4h7.4c3.2 0 5-1.4 5-4.2 0-2.8-1.8-4.2-5-4.2H27Zm0 16v10h8.2c3.8 0 5.8-1.7 5.8-5s-2-5-5.8-5H27Z" fill="#fff"/>
-  <path d="M49.5 11 56 17.5 45.5 28 39 21.5 49.5 11Z" fill="url(#accent)"/>
+  <defs><linearGradient id="a" x1="9" y1="8" x2="56" y2="57"><stop stop-color="#ff9f4b"/><stop offset="1" stop-color="#ff5500"/></linearGradient></defs>
+  <rect width="64" height="64" rx="15" fill="#0b0d0c"/>
+  <path fill="url(#a)" fill-rule="evenodd" d="M10 12h22c9 0 15 4 15 11 0 4-2 7-6 9 6 1 9 5 9 10 0 4-2 7-5 10H10V12Zm9 8v9h12c4 0 6-2 6-5s-2-4-6-4H19Zm0 16v8h15c4 0 6-2 6-4s-2-4-6-4H19Z"/>
+  <path d="M56 20c-4-6-10-9-17-9-11 0-20 7-22 17h10c2-5 6-8 12-8 4 0 7 1 10 4l7-4Zm-7 20c-3 3-6 4-10 4-6 0-10-3-12-8H17c2 11 11 18 22 18 7 0 13-3 17-8l-7-6Z" fill="url(#a)"/>
 </svg>

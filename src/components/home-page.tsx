@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Clock3, ShieldCheck, Ship, WalletCards } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { VehiclePageResult } from "@/lib/types";
 import { formatDateTime } from "@/lib/format";
 import { Hero } from "./hero";
@@ -11,13 +11,7 @@ import { TurnkeyCalculator } from "./turnkey-calculator";
 import { ProcessTimeline } from "./process-timeline";
 import { LeadForm } from "./lead-form";
 import { buttonStyles } from "./ui/button";
-
-const advantages = [
-  [ShieldCheck, "Перевіряємо до ставки", "VIN, документи, історія продажів і характер пошкоджень."],
-  [WalletCards, "Показуємо всю економіку", "Аукціон, логістика, митні платежі, ремонт і наша комісія окремо."],
-  [Ship, "Контролюємо маршрут", "Від майданчика у США до видачі автомобіля в Україні."],
-  [Clock3, "Статуси без тиші", "Фото, документи та оновлення на кожному ключовому етапі."],
-] as const;
+import { AdvantagesShowcase } from "./advantages-showcase";
 
 export function HomePage({ catalog }: { catalog: VehiclePageResult }) {
   return (
@@ -25,20 +19,17 @@ export function HomePage({ catalog }: { catalog: VehiclePageResult }) {
       <SiteHeader />
       <main>
         <Hero />
-        <section id="auctions" className="scroll-mt-24 py-20 sm:py-28">
+        <section id="auctions" className="home-auction-transition scroll-mt-24 py-20 sm:py-28">
           <div className="shell">
             <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
               <div><div className="eyebrow">Реальні лоти Copart та IAAI</div><h2 className="section-title">Свіжі авто з аукціонів США</h2></div>
               <div className="max-w-sm text-sm leading-6 text-white/50"><p>Виберіть автомобіль безпосередньо з американського аукціону.</p><p className="mt-2">Дані оновлено: {formatDateTime(catalog.lastSyncedAt)}</p></div>
             </div>
+            <AdvantagesShowcase />
             {catalog.isDemo && <div className="mt-7"><DemoNotice /></div>}
-            <div className="mt-8"><VehicleGrid vehicles={catalog.vehicles} /></div>
+            <div className="mt-12"><VehicleGrid vehicles={catalog.vehicles} /></div>
             <div className="mt-8 flex justify-center"><Link href="/cars" className={buttonStyles("secondary")}>Дивитися весь каталог <ArrowRight size={17} /></Link></div>
           </div>
-        </section>
-
-        <section className="border-y border-white/[.07] bg-white/[.018] py-20 sm:py-28">
-          <div className="shell"><div className="eyebrow">Чому BRILLIANTCARS</div><h2 className="section-title">Контроль угоди замість здогадок</h2><div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">{advantages.map(([Icon, title, text]) => <article key={title} className="rounded-3xl border border-white/10 bg-[#0e100e] p-6"><Icon className="text-[#ff7b1a]" size={25} /><h3 className="mt-7 text-xl font-bold tracking-[-.035em]">{title}</h3><p className="mt-3 text-sm leading-6 text-white/48">{text}</p></article>)}</div></div>
         </section>
 
         <section id="calculator" className="scroll-mt-24 py-20 sm:py-28"><div className="shell"><div className="eyebrow">Попередній розрахунок</div><h2 className="section-title">Зрозумійте бюджет до початку торгів</h2><div className="mt-10"><TurnkeyCalculator /></div></div></section>

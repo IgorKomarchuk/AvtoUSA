@@ -3,6 +3,7 @@ import { Instagram, Mail, MessageCircle } from "lucide-react";
 import { TrackedPhoneLink } from "./tracked-phone-link";
 import { CookieSettingsButton } from "./cookie-settings-button";
 import { getSiteContacts } from "@/lib/site-contacts";
+import { BrandLogo } from "./brand-logo";
 
 export async function SiteFooter() {
   const contacts = await getSiteContacts();
@@ -11,7 +12,7 @@ export async function SiteFooter() {
       <div className="shell">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_.8fr_.8fr_1fr]">
           <div>
-            <Link href="/" className="text-2xl font-black tracking-[-.05em] no-underline">BRILLIANT<span className="text-[#ff6b00]">CARS</span></Link>
+            <Link href="/" className="inline-flex no-underline"><BrandLogo /></Link>
             <p className="mt-4 max-w-sm text-sm text-white/50">Підбір, перевірка, купівля та доставка автомобілів зі США в Україну.</p>
           </div>
           <div>
