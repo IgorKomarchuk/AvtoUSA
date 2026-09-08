@@ -146,7 +146,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .advantage-row:hover .advantage-number { color: rgba(255, 107, 0, .08); }
 
 @media (max-width: 640px) {
-  .shell { width: min(100% - 24px, 1240px); }
+  .shell { width: min(calc(100% - 24px), 1240px); }
   .section-title { font-size: clamp(2.2rem, 12vw, 3.5rem); }
   .advantage-row { grid-template-columns: 5rem 1fr; min-height: 10rem; }
   .hero-veil {
