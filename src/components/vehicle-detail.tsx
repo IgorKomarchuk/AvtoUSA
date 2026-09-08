@@ -11,6 +11,7 @@ import { TurnkeyCalculator } from "./turnkey-calculator";
 import { LeadForm } from "./lead-form";
 import { DemoNotice } from "./demo-notice";
 import { AuctionSchedule } from "./auction-schedule";
+import { VehicleAnalytics } from "./vehicle-analytics";
 
 export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
   const specs = [
@@ -24,6 +25,7 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
   const displayPrice = vehicle.buyNowPrice ?? vehicle.currentBid;
   return (
     <>
+      <VehicleAnalytics id={vehicle.id} title={vehicle.title} platform={vehicle.platform} price={displayPrice} />
       <SiteHeader />
       <main className="pb-24">
         <div className="shell py-6 sm:py-9"><Link href="/cars" className="premium-focus inline-flex items-center gap-2 rounded-lg text-sm text-white/50 no-underline hover:text-white"><ArrowLeft size={16} />До каталогу</Link></div>

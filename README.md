@@ -100,6 +100,7 @@ If neither PostgreSQL nor Telegram is configured, the form returns a clear confi
 - `/admin/autoposting/history` — publication audit trail and post URLs
 - `/admin/autoposting/errors` — per-attempt channel errors and retry actions
 - `/admin/autoposting/templates` — editable per-channel post templates
+- `/admin/google` — GA4, Google Ads conversions and Consent Mode v2
 - `/admin/leads` — lead source, vehicle and UTM attribution
 
 `SESSION_SECRET` must contain at least 32 random characters. Admin pages are `noindex` and API actions verify the signed HTTP-only session.
@@ -131,6 +132,21 @@ npm run worker:autopost
 
 The same jobs are exposed to schedulers through `GET /api/cron/autoposting`, protected by `Authorization: Bearer <CRON_SECRET>`.
 
+## Google Analytics and Google Ads
+
+Google tracking is disabled until valid identifiers are saved in `/admin/google` or configured through environment variables. The integration uses one Google tag across the site, SPA-aware page views, GA4 recommended `view_item` and `generate_lead` events, calculator and phone-click events, and separate Google Ads conversion labels for successful lead submissions and phone clicks. A server-generated transaction ID deduplicates lead conversions. Form names, phone numbers and messenger handles are never sent in analytics events.
+
+Consent Mode v2 defaults `analytics_storage`, `ad_storage`, `ad_user_data` and `ad_personalization` to denied until the visitor grants consent. The footer lets visitors reopen their cookie choice. URL passthrough and ads data redaction are enabled.
+
+```env
+GOOGLE_ANALYTICS_ENABLED=false
+GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
+GOOGLE_ADS_ENABLED=false
+GOOGLE_ADS_ID=AW-123456789
+GOOGLE_ADS_LEAD_CONVERSION_LABEL=
+GOOGLE_ADS_PHONE_CONVERSION_LABEL=
+```
+
 ## Verification
 
 ```bash
@@ -160,4 +176,4 @@ Copy `deploy/nginx/drivestate.conf` to `/etc/nginx/sites-available/drivestate`, 
 
 ## Legal notice
 
-Lot data comes from public sources and a third-party data aggregator. Copart and IAAI are trademarks of their respective owners. DRIVE STATE does not claim to be Copart, IAAI, or an official partner. The included privacy and offer pages are structural templates and require review plus real company details before production launch.
+Lot data comes from public sources and a third-party data aggregator. Copart and IAAI are trademarks of their respective owners. BRILLIANTCARS does not claim to be Copart, IAAI, or an official partner. The included privacy and offer pages require review plus complete legal company details before production launch.

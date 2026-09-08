@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, LoaderCircle } from "lucide-react";
 import { Button } from "./ui/button";
+import { trackLeadConversion } from "@/lib/analytics";
 
 export interface LeadVehicleContext {
   vehicleId?: string;
@@ -47,8 +48,9 @@ export function LeadForm({ vehicle, compact = false }: { vehicle?: LeadVehicleCo
     };
     try {
       const response = await fetch("/api/leads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      const data = (await response.json()) as { ok?: boolean; message?: string };
+      const data = (await response.json()) as { ok?: boolean; message?: string; conversionId?: string };
       if (!response.ok || !data.ok) throw new Error(data.message ?? "Не вдалося надіслати заявку");
+      trackLeadConversion({ form_name: vehicle ? "vehicle_quote" : "general_request", vehicle_id: vehicle?.vehicleId ?? "", source_channel: sourceChannel, transaction_id: data.conversionId ?? "" });
       setState("success");
       event.currentTarget.reset();
     } catch (error) {

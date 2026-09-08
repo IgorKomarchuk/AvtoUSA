@@ -5,6 +5,7 @@ import { sendLeadToTelegram } from "@/lib/telegram";
 import { leadSchema } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
+  let conversionId = crypto.randomUUID();
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   if (!allowRequest(`lead:${ip}`, 5, 10 * 60_000)) return NextResponse.json({ ok: false, message: "Забагато спроб. Спробуйте пізніше." }, { status: 429 });
   const parsed = leadSchema.safeParse(await request.json().catch(() => null));
@@ -15,7 +16,7 @@ export async function POST(request: NextRequest) {
   let saved = false;
   if (prisma) {
     try {
-      await prisma.lead.create({
+      const lead = await prisma.lead.create({
         data: {
           name: parsed.data.name,
           phone: parsed.data.phone,
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
           utmContent: parsed.data.utmContent || null,
         },
       });
+      conversionId = lead.id;
       saved = true;
     } catch {
       // Telegram remains a valid delivery fallback if database persistence fails.
@@ -46,5 +48,5 @@ export async function POST(request: NextRequest) {
     // The database copy remains available for the manager.
   }
   if (!saved && !delivered) return NextResponse.json({ ok: false, message: "Форма ще не підключена. Налаштуйте PostgreSQL або Telegram." }, { status: 503 });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, conversionId });
 }

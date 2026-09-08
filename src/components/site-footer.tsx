@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Instagram, Mail, MessageCircle } from "lucide-react";
+import { TrackedPhoneLink } from "./tracked-phone-link";
+import { CookieSettingsButton } from "./cookie-settings-button";
 
 export function SiteFooter() {
   return (
@@ -19,12 +21,12 @@ export function SiteFooter() {
           <div>
             <h2 className="text-xs font-black uppercase tracking-[.14em] text-white/40">Компанія</h2>
             <div className="mt-4 grid gap-2 text-sm text-white/70">
-              <Link href="/#delivery">Доставка</Link><Link href="/#request">Контакти</Link><Link href="/privacy">Політика конфіденційності</Link><Link href="/terms">Публічна оферта</Link>
+              <Link href="/#delivery">Доставка</Link><Link href="/#request">Контакти</Link><Link href="/privacy">Політика конфіденційності</Link><Link href="/terms">Публічна оферта</Link><CookieSettingsButton />
             </div>
           </div>
           <div>
             <h2 className="text-xs font-black uppercase tracking-[.14em] text-white/40">Зв’язок</h2>
-            <a className="mt-4 block text-lg font-bold no-underline" href="tel:+380732610965" aria-label="Зателефонувати +38 073 261 09 65">+38 073 261 09 65</a>
+            <TrackedPhoneLink location="footer" className="mt-4 block text-lg font-bold no-underline" ariaLabel="Зателефонувати +38 073 261 09 65">+38 073 261 09 65</TrackedPhoneLink>
             <a className="mt-3 flex items-center gap-2 break-all text-sm text-white/65 no-underline transition hover:text-white" href="mailto:racenkodmitrij8@gmail.com"><Mail size={16} className="shrink-0 text-[#ff7b1a]" />racenkodmitrij8@gmail.com</a>
             <div className="mt-4 flex gap-2">
               <a href="https://t.me/" target="_blank" rel="noreferrer" className="grid size-11 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white" aria-label="Telegram"><MessageCircle size={18} /></a>

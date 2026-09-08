@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/components/language-provider";
 import { absoluteUrl } from "@/lib/utils";
+import { GoogleTracking } from "@/components/google-tracking";
+import { getGoogleTrackingSettings } from "@/lib/google-settings";
 
 export const metadata: Metadata = {
   metadataBase: new URL(absoluteUrl()),
@@ -21,11 +23,12 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#070807", colorScheme: "dark" };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const googleSettings = await getGoogleTrackingSettings();
   return (
     <html lang="uk" suppressHydrationWarning>
       <body>
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>{children}<GoogleTracking settings={googleSettings} /></LanguageProvider>
       </body>
     </html>
   );

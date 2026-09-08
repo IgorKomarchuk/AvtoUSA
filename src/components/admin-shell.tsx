@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Activity, CarFront, ExternalLink, Gauge, LogOut, Megaphone, Users } from "lucide-react";
+import { Activity, BarChart3, CarFront, ExternalLink, Gauge, LogOut, Megaphone, Users } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", Icon: Gauge },
   { href: "/admin/sync", label: "Синхронізація", Icon: Activity },
   { href: "/admin/autoposting", label: "Автопублікації", Icon: Megaphone },
+  { href: "/admin/google", label: "Google", Icon: BarChart3 },
   { href: "/admin/leads", label: "Заявки", Icon: Users },
 ] as const;
 

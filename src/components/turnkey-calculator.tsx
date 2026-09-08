@@ -5,6 +5,7 @@ import { ArrowRight, Calculator as CalculatorIcon } from "lucide-react";
 import { calculateTurnkey, calculatorDefaults, type CalculatorInput } from "@/lib/calculator";
 import { formatUsd } from "@/lib/format";
 import { buttonStyles } from "./ui/button";
+import { trackEvent } from "@/lib/analytics";
 
 const fields: Array<[keyof CalculatorInput, string]> = [
   ["vehiclePrice", "Ціна автомобіля на аукціоні"],
@@ -46,7 +47,7 @@ export function TurnkeyCalculator({ initialPrice }: { initialPrice?: number }) {
         <p className="mt-6 text-xs font-black uppercase tracking-[.15em] text-white/45">Орієнтовна вартість під ключ</p>
         <output className="mt-2 text-[clamp(3.2rem,7vw,5.8rem)] font-black leading-none tracking-[-.07em]">{formatUsd(total)}</output>
         <p className="mt-6 text-sm leading-6 text-white/50">Розрахунок попередній. Фінальна вартість залежить від конкретного автомобіля, комісії аукціону, доставки та курсу валют.</p>
-        <a href="#request" className={`${buttonStyles("primary")} mt-7`}>Отримати точний розрахунок <ArrowRight size={17} /></a>
+        <a href="#request" onClick={() => trackEvent("calculate_quote", { currency: "USD", value: total })} className={`${buttonStyles("primary")} mt-7`}>Отримати точний розрахунок <ArrowRight size={17} /></a>
       </aside>
     </div>
   );
