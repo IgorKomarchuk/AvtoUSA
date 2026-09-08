@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Activity, ArrowLeft, BarChart3, CarFront, ContactRound, ExternalLink, Gauge, LogOut, Megaphone, MessageCircle, Users } from "lucide-react";
+import { Activity, ArrowLeft, BarChart3, CarFront, ContactRound, ExternalLink, Gauge, KeyRound, LogOut, Megaphone, MessageCircle, Users } from "lucide-react";
 import { BrandLogo } from "./brand-logo";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", Icon: Gauge },
   { href: "/admin/sync", label: "Синхронізація", Icon: Activity },
+  { href: "/admin/apibara", label: "API аукціонів", Icon: KeyRound },
   { href: "/admin/autoposting", label: "Автопублікації", Icon: Megaphone },
   { href: "/admin/autoposting/integrations", label: "Месенджери", Icon: MessageCircle },
   { href: "/admin/google", label: "Google", Icon: BarChart3 },

@@ -4,6 +4,7 @@ import { slugify } from "./utils";
 import type { ApiUsageData, AuctionPlatform, VehicleData } from "./types";
 
 const DEFAULT_BASE_URL = "https://apibara.tech/api/v1/vehicle-auction";
+const DEFAULT_TIMEOUT_MS = 45_000;
 const HTTP_ERRORS: Record<number, string> = {
   400: "Некоректні параметри запиту до Apibara",
   401: "Ключ Apibara відсутній або недійсний",
@@ -159,8 +160,13 @@ export function mapApibaraVehicle(input: unknown): VehicleData {
 }
 
 export class ApibaraClient {
-  private readonly baseUrl = process.env.APIBARA_BASE_URL ?? DEFAULT_BASE_URL;
-  private readonly apiKey = process.env.APIBARA_API_KEY;
+  private readonly baseUrl: string;
+  private readonly apiKey: string;
+
+  constructor(apiKey = process.env.APIBARA_API_KEY?.trim() ?? "", baseUrl = process.env.APIBARA_BASE_URL ?? DEFAULT_BASE_URL) {
+    this.apiKey = apiKey;
+    this.baseUrl = baseUrl;
+  }
 
   get configured() {
     return Boolean(this.apiKey);
@@ -173,7 +179,10 @@ export class ApibaraClient {
     const response = await fetch(url, {
       headers: { Accept: "application/json", "X-API-Key": this.apiKey },
       cache: "no-store",
-      signal: AbortSignal.timeout(15_000),
+      // Apibara can take longer while aggregating live auction data. A longer
+      // timeout avoids false failures; requests are deliberately not retried so
+      // a slow provider cannot consume the small FREE quota more than once.
+      signal: AbortSignal.timeout(Math.min(120_000, Math.max(10_000, Number(process.env.APIBARA_REQUEST_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS))),
     });
     const payload = await response.json().catch(() => null);
     if (!response.ok) {
@@ -183,10 +192,12 @@ export class ApibaraClient {
   }
 
   async vehicles(options: { platform?: "copart" | "iaai"; identifier?: string } = {}) {
+    const updatedWithinMinutes = Math.min(525_600, Math.max(1, Number(process.env.AUCTION_SYNC_UPDATED_WITHIN_MINUTES) || 720));
     const params = new URLSearchParams({
       lot_status: "All",
       lot_sub_status: "Open",
       upcoming: "only",
+      updated_within_minutes: String(updatedWithinMinutes),
       per_page: String(Math.min(20, Math.max(1, Number(process.env.AUCTION_SYNC_PER_PAGE) || 20))),
     });
     if (options.platform) params.set("platform", options.platform);

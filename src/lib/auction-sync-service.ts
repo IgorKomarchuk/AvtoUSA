@@ -1,6 +1,7 @@
 import "server-only";
 
 import { ApibaraClient, ApibaraError } from "./apibara";
+import { getActiveApibaraKey } from "./apibara-credentials";
 import { getPrisma } from "./prisma";
 import type { AuctionPlatform, SyncResult, VehicleData } from "./types";
 
@@ -9,7 +10,9 @@ function serializable(value: unknown) {
 }
 
 export class AuctionSyncService {
-  private readonly client = new ApibaraClient();
+  private async client() {
+    return new ApibaraClient(await getActiveApibaraKey());
+  }
 
   async syncVehicles(): Promise<SyncResult> {
     return this.syncProvider("all");
@@ -25,11 +28,12 @@ export class AuctionSyncService {
 
   async syncSingleVehicle(identifier: string): Promise<SyncResult> {
     const prisma = getPrisma();
-    if (!this.client.configured) return this.skipped("single", "APIBARA_API_KEY не налаштовано; використовується DEMO-режим");
+    const client = await this.client();
+    if (!client.configured) return this.skipped("single", "APIBARA_API_KEY не налаштовано; використовується DEMO-режим");
     if (!prisma) return this.skipped("single", "DATABASE_URL не налаштовано; синхронізація не може бути збережена");
     const log = await prisma.auctionSyncLog.create({ data: { provider: "single", endpoint: `/vehicles/${identifier}` } });
     try {
-      const vehicle = await this.client.singleVehicle(identifier);
+      const vehicle = await client.singleVehicle(identifier);
       const existed = await prisma.vehicle.findUnique({
         where: { identityKey: `${vehicle.platform}:${vehicle.lotNumber}` },
         select: { id: true },
@@ -58,8 +62,9 @@ export class AuctionSyncService {
 
   async refreshUsage() {
     const prisma = getPrisma();
-    if (!this.client.configured) throw new Error("APIBARA_API_KEY не налаштовано");
-    const usage = await this.client.usage();
+    const client = await this.client();
+    if (!client.configured) throw new Error("APIBARA_API_KEY не налаштовано");
+    const usage = await client.usage();
     if (prisma) {
       await prisma.siteSetting.upsert({
         where: { key: "apibara_usage" },
@@ -72,11 +77,12 @@ export class AuctionSyncService {
 
   private async syncProvider(provider: "all" | "copart" | "iaai"): Promise<SyncResult> {
     const prisma = getPrisma();
-    if (!this.client.configured) return this.skipped(provider, "APIBARA_API_KEY не налаштовано; використовується DEMO-режим");
+    const client = await this.client();
+    if (!client.configured) return this.skipped(provider, "APIBARA_API_KEY не налаштовано; використовується DEMO-режим");
     if (!prisma) return this.skipped(provider, "DATABASE_URL не налаштовано; синхронізація не може бути збережена");
     const log = await prisma.auctionSyncLog.create({ data: { provider, endpoint: "/vehicles" } });
     try {
-      const response = await this.client.vehicles({ platform: provider === "all" ? undefined : provider });
+      const response = await client.vehicles({ platform: provider === "all" ? undefined : provider });
       let createdRecords = 0;
       let updatedRecords = 0;
       for (const vehicle of response.vehicles) {
