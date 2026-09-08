@@ -26,18 +26,23 @@ async function readJson(response: Response) {
 async function testConnection(channel: "TELEGRAM" | "FACEBOOK" | "INSTAGRAM" | "VIBER") {
   const credentials = await getSocialCredentials();
   if (channel === "TELEGRAM") {
-    if (!credentials.telegramBotToken || !credentials.telegramChannelId) throw new Error("Заповніть токен бота та Channel ID для автопостів");
+    if (!credentials.telegramBotToken) throw new Error("Заповніть токен Telegram-бота");
+    if (!credentials.telegramChannelId) throw new Error("Заповніть Channel ID для автопостів");
+    if (!credentials.telegramLeadChatId) throw new Error("Заповніть Chat ID менеджера для заявок — без нього заявки залишаються лише в адмінці");
     const bot = await fetch(`https://api.telegram.org/bot${credentials.telegramBotToken}/getMe`, { signal: AbortSignal.timeout(15_000) });
     const payload = await readJson(bot);
     if (!bot.ok || payload?.ok !== true) throw new Error(String(payload?.description ?? "Telegram не підтвердив токен"));
-    const destinations = [credentials.telegramChannelId, credentials.telegramLeadChatId].filter(Boolean);
+    const destinations = [
+      { label: "Автопости", chatId: credentials.telegramChannelId },
+      { label: "Заявки", chatId: credentials.telegramLeadChatId },
+    ];
     const names: string[] = [];
-    for (const chatId of destinations) {
+    for (const { label, chatId } of destinations) {
       const chat = await fetch(`https://api.telegram.org/bot${credentials.telegramBotToken}/getChat?chat_id=${encodeURIComponent(chatId)}`, { signal: AbortSignal.timeout(15_000) });
       const chatPayload = await readJson(chat);
       if (!chat.ok || chatPayload?.ok !== true) throw new Error(String(chatPayload?.description ?? `Telegram не знайшов ${chatId}`));
       const result = (chatPayload?.result ?? {}) as Record<string, unknown>;
-      names.push(String(result.title ?? result.username ?? chatId));
+      names.push(`${label}: ${String(result.title ?? result.username ?? chatId)}`);
     }
     return `Telegram підключено: ${names.join("; ")}`;
   }

@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
 
   const prisma = getPrisma();
   let saved = false;
+  let savedLeadId: string | null = null;
   if (prisma) {
     try {
       const lead = await prisma.lead.create({
@@ -40,17 +41,31 @@ export async function POST(request: NextRequest) {
         },
       });
       conversionId = lead.id;
+      savedLeadId = lead.id;
       saved = true;
     } catch {
       // Telegram remains a valid delivery fallback if database persistence fails.
     }
   }
   let delivered = false;
+  let telegramError: string | null = null;
   try {
-    delivered = (await sendLeadToTelegram(parsed.data)).delivered;
-  } catch {
-    // The database copy remains available for the manager.
+    const result = await sendLeadToTelegram(parsed.data);
+    delivered = result.delivered;
+    if (!result.delivered) telegramError = result.reason;
+  } catch (error) {
+    telegramError = error instanceof Error ? error.message : "Невідома помилка Telegram";
+  }
+  if (prisma && savedLeadId) {
+    await prisma.lead.update({
+      where: { id: savedLeadId },
+      data: {
+        telegramDelivered: delivered,
+        telegramSentAt: delivered ? new Date() : null,
+        telegramError: delivered ? null : telegramError,
+      },
+    }).catch(() => undefined);
   }
   if (!saved && !delivered) return NextResponse.json({ ok: false, message: "Форма ще не підключена. Налаштуйте PostgreSQL або Telegram." }, { status: 503 });
-  return NextResponse.json({ ok: true, conversionId });
+  return NextResponse.json({ ok: true, conversionId, deliveryStatus: delivered ? "telegram_sent" : "saved_in_admin" });
 }

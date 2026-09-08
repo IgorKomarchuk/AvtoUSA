@@ -11,7 +11,8 @@ export async function sendLeadToTelegram(lead: LeadInput) {
   const credentials = await getSocialCredentials();
   const token = credentials.telegramBotToken;
   const chatId = credentials.telegramLeadChatId;
-  if (!token || !chatId) return { delivered: false, reason: "not_configured" as const };
+  if (!token) return { delivered: false as const, reason: "Telegram bot token не налаштовано" };
+  if (!chatId) return { delivered: false as const, reason: "Chat ID менеджера для заявок не налаштовано" };
 
   const text = [
     "<b>Нова заявка із сайту BRILLIANTCARS</b>",
@@ -34,6 +35,9 @@ export async function sendLeadToTelegram(lead: LeadInput) {
     body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
     signal: AbortSignal.timeout(10_000),
   });
-  if (!response.ok) throw new Error(`Telegram delivery failed with HTTP ${response.status}`);
+  const payload = await response.json().catch(() => null) as { ok?: boolean; description?: string } | null;
+  if (!response.ok || payload?.ok !== true) {
+    throw new Error(payload?.description || `Telegram не прийняв заявку (HTTP ${response.status})`);
+  }
   return { delivered: true as const };
 }

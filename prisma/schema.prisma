@@ -165,6 +165,9 @@ model Lead {
   gclid         String?
   gbraid        String?
   wbraid        String?
+  telegramDelivered Boolean  @default(false)
+  telegramError     String?
+  telegramSentAt    DateTime?
   status        LeadStatus @default(NEW)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt

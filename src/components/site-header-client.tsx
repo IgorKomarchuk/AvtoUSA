@@ -15,7 +15,7 @@ export function SiteHeaderClient({ contacts }: { contacts: SiteContacts }) {
   const [open, setOpen] = useState(false);
   const phoneLabel = `Зателефонувати ${contacts.phoneDisplay}`;
   return <header className="sticky top-0 z-50 border-b border-white/[.07] bg-[#070807]/85 backdrop-blur-2xl">
-    <div className="shell flex h-[76px] items-center justify-between gap-4">
+    <div className="shell flex h-[68px] items-center justify-between gap-2 sm:h-[76px] sm:gap-4">
       <Link href="/" className="premium-focus rounded-lg no-underline" aria-label="BRILLIANTCARS — головна"><BrandLogo compact /></Link>
       <nav className="hidden items-center gap-5 xl:flex" aria-label="Основна навігація">{nav.map(([label,href])=><Link key={href} href={href} className="premium-focus rounded-md text-[13px] font-semibold text-white/65 no-underline transition hover:text-white">{label}</Link>)}</nav>
       <div className="hidden items-center gap-2 md:flex"><TrackedPhoneLink phone={contacts.phoneHref} location="header_desktop" className="premium-focus hidden rounded-lg px-2 text-sm font-bold no-underline lg:block" ariaLabel={phoneLabel}>{contacts.phoneDisplay}</TrackedPhoneLink><a href={contacts.telegramUrl} target="_blank" rel="noreferrer" className="premium-focus grid size-10 place-items-center rounded-xl border border-white/10 text-white/70 transition hover:text-white" aria-label="Telegram"><MessageCircle size={17}/></a><LanguageSwitcher/><Link href="/#request" className={buttonStyles("primary")}>Підібрати авто</Link></div>

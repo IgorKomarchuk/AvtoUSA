@@ -71,7 +71,7 @@ export function LeadForm({ vehicle, compact = false }: { vehicle?: LeadVehicleCo
   }
 
   return (
-    <form onSubmit={submit} className={`grid gap-3 ${compact ? "" : "sm:grid-cols-2"}`} noValidate>
+    <form onSubmit={submit} className={`grid min-w-0 gap-3 ${compact ? "" : "sm:grid-cols-2"}`} noValidate>
       <input className="hidden" tabIndex={-1} autoComplete="off" name="website" aria-hidden="true" />
       <label className="grid gap-2 text-xs font-semibold text-white/55">Ім’я<input className="input" name="name" required minLength={2} autoComplete="name" placeholder="Ваше ім’я" /></label>
       <label className="grid gap-2 text-xs font-semibold text-white/55">Телефон<input className="input" name="phone" required minLength={7} autoComplete="tel" inputMode="tel" placeholder="+38 0__ ___ __ __" /></label>

@@ -124,6 +124,7 @@ export async function getSocialCredentialSummary() {
   const [values, checks] = await Promise.all([getSocialCredentials(), getSocialIntegrationChecks()]);
   return {
     configured: Object.fromEntries((["TELEGRAM", "FACEBOOK", "INSTAGRAM", "VIBER"] as SocialChannel[]).map((channel) => [channel, channelConfigured(channel, values)])) as Record<SocialChannel, boolean>,
+    telegramLeadsConfigured: Boolean(values.telegramBotToken && values.telegramLeadChatId),
     masks: Object.fromEntries(SOCIAL_CREDENTIAL_FIELDS.map((field) => [field, mask(values[field])])) as Record<SocialCredentialField, string | null>,
     checks,
   };
