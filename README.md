@@ -100,6 +100,7 @@ If neither PostgreSQL nor Telegram is configured, the form returns a clear confi
 - `/admin/autoposting/history` — publication audit trail and post URLs
 - `/admin/autoposting/errors` — per-attempt channel errors and retry actions
 - `/admin/autoposting/templates` — editable per-channel post templates
+- `/admin/autoposting/integrations` — encrypted Telegram, Facebook, Instagram and Viber credentials with connection checks
 - `/admin/google` — GA4, Google Ads conversions and Consent Mode v2
 - `/admin/leads` — lead source, vehicle and UTM attribution
 

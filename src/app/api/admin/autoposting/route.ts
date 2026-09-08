@@ -4,6 +4,7 @@ import { getAdminSession } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
 import { AutopostingService } from "@/lib/autoposting-service";
 import { unknownTemplateVariables } from "@/lib/social-template";
+import { isSocialChannelConfigured } from "@/lib/social-credentials";
 
 const channel = z.enum(["TELEGRAM", "FACEBOOK", "INSTAGRAM", "VIBER"]);
 const requestSchema = z.discriminatedUnion("action", [
@@ -33,7 +34,10 @@ export async function POST(request: Request) {
       void _action;
       await prisma.siteSetting.upsert({ where: { key: "autopost_filters" }, create: { key: "autopost_filters", value: filters }, update: { value: filters } });
     }
-    if (data.action === "channel") await prisma.socialChannelSetting.upsert({ where: { channel: data.channel }, create: { channel: data.channel, enabled: data.enabled, dailyLimit: data.dailyLimit, timeWindows: data.timeWindows }, update: { enabled: data.enabled, dailyLimit: data.dailyLimit, timeWindows: data.timeWindows } });
+    if (data.action === "channel") {
+      if (data.enabled && !(await isSocialChannelConfigured(data.channel))) return NextResponse.json({ ok: false, message: "Спочатку збережіть credentials у розділі «Інтеграції»" }, { status: 409 });
+      await prisma.socialChannelSetting.upsert({ where: { channel: data.channel }, create: { channel: data.channel, enabled: data.enabled, dailyLimit: data.dailyLimit, timeWindows: data.timeWindows }, update: { enabled: data.enabled, dailyLimit: data.dailyLimit, timeWindows: data.timeWindows } });
+    }
     if (data.action === "template") {
       const unknown = unknownTemplateVariables(data.body);
       if (unknown.length) return NextResponse.json({ ok: false, message: `Невідомі змінні: ${unknown.join(", ")}` }, { status: 422 });

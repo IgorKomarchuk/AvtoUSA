@@ -4,7 +4,8 @@ import type { Prisma, SocialChannel } from "@prisma/client";
 import { getPrisma } from "./prisma";
 import type { VehicleData } from "./types";
 import { DEFAULT_PUBLICATION_FILTERS, publicationQuality, type PublicationFilterConfig } from "./publication-quality";
-import { DEFAULT_CHANNEL_CONFIG, DEFAULT_TEMPLATES, SOCIAL_CHANNELS, canQueuePublication, isChannelConfigured } from "./social-config";
+import { DEFAULT_CHANNEL_CONFIG, DEFAULT_TEMPLATES, SOCIAL_CHANNELS, canQueuePublication } from "./social-config";
+import { isSocialChannelConfigured } from "./social-credentials";
 import { renderSocialTemplate } from "./social-template";
 import { publishToSocialChannel, SocialPublishError } from "./social-publishers";
 
@@ -167,7 +168,7 @@ export class AutopostingService {
     const claimed = await prisma.socialPublication.updateMany({ where: { id: row.id, status: { in: ["QUEUED", "SCHEDULED"] } }, data: { status: "PUBLISHING" } });
     if (!claimed.count) return "skipped";
     try {
-      if (!isChannelConfigured(row.channel)) throw new SocialPublishError(`${row.channel} credentials are not configured`, "NOT_CONFIGURED", false);
+      if (!(await isSocialChannelConfigured(row.channel))) throw new SocialPublishError(`${row.channel} credentials are not configured`, "NOT_CONFIGURED", false);
       const template = await prisma.socialTemplate.findUnique({ where: { channel: row.channel } });
       const postText = renderSocialTemplate(template?.body ?? DEFAULT_TEMPLATES[row.channel], asVehicle(row.vehicle), row.channel);
       const receipt = await publishToSocialChannel(row.channel, asVehicle(row.vehicle), postText);

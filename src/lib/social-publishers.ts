@@ -3,6 +3,7 @@ import "server-only";
 import type { SocialChannel } from "@prisma/client";
 import type { VehicleData } from "./types";
 import { vehicleSocialUrl } from "./social-template";
+import { getSocialCredentials } from "./social-credentials";
 
 export interface PublicationReceipt {
   externalPostId: string;
@@ -38,8 +39,9 @@ async function waitForInstagramContainer(containerId: string, token: string) {
 }
 
 async function telegram(vehicle: VehicleData, text: string): Promise<PublicationReceipt> {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHANNEL_ID;
+  const credentials = await getSocialCredentials();
+  const token = credentials.telegramBotToken;
+  const chatId = credentials.telegramChannelId;
   if (!token || !chatId) throw new SocialPublishError("Telegram channel credentials are not configured", "NOT_CONFIGURED", false);
   const url = vehicleSocialUrl(vehicle, "TELEGRAM");
   const photo = vehicle.photos[0]?.url;
@@ -60,8 +62,9 @@ async function telegram(vehicle: VehicleData, text: string): Promise<Publication
 }
 
 async function facebook(vehicle: VehicleData, text: string): Promise<PublicationReceipt> {
-  const pageId = process.env.FACEBOOK_PAGE_ID;
-  const token = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
+  const credentials = await getSocialCredentials();
+  const pageId = credentials.facebookPageId;
+  const token = credentials.facebookPageAccessToken;
   if (!pageId || !token) throw new SocialPublishError("Facebook Page credentials are not configured", "NOT_CONFIGURED", false);
   const body = new URLSearchParams({ url: vehicle.photos[0]?.url ?? "", caption: text, access_token: token });
   const response = await fetch(graphEndpoint(`${pageId}/photos`), { method: "POST", body, signal: AbortSignal.timeout(25_000) });
@@ -73,8 +76,9 @@ async function facebook(vehicle: VehicleData, text: string): Promise<Publication
 }
 
 async function instagram(vehicle: VehicleData, text: string): Promise<PublicationReceipt> {
-  const accountId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
-  const token = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
+  const credentials = await getSocialCredentials();
+  const accountId = credentials.instagramBusinessAccountId;
+  const token = credentials.facebookPageAccessToken;
   if (!accountId || !token) throw new SocialPublishError("Instagram Business credentials are not configured", "NOT_CONFIGURED", false);
   const createBody = new URLSearchParams({ image_url: vehicle.photos[0]?.url ?? "", caption: text, access_token: token });
   const create = await fetch(graphEndpoint(`${accountId}/media`), { method: "POST", body: createBody, signal: AbortSignal.timeout(25_000) });
@@ -94,14 +98,15 @@ async function instagram(vehicle: VehicleData, text: string): Promise<Publicatio
 }
 
 async function viber(vehicle: VehicleData, text: string): Promise<PublicationReceipt> {
-  const token = process.env.VIBER_BOT_TOKEN;
-  const recipients = process.env.VIBER_BROADCAST_LIST?.split(",").map((item) => item.trim()).filter(Boolean) ?? [];
+  const credentials = await getSocialCredentials();
+  const token = credentials.viberBotToken;
+  const recipients = credentials.viberBroadcastList.split(",").map((item) => item.trim()).filter(Boolean);
   if (!token || !recipients.length) throw new SocialPublishError("Viber token or broadcast recipients are not configured", "NOT_CONFIGURED", false);
   const url = vehicleSocialUrl(vehicle, "VIBER");
   const response = await fetch("https://chatapi.viber.com/pa/broadcast_message", {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Viber-Auth-Token": token },
-    body: JSON.stringify({ broadcast_list: recipients, min_api_version: 7, sender: { name: process.env.VIBER_SENDER_NAME ?? "BRILLIANTCARS" }, type: "rich_media", alt_text: text, rich_media: { Type: "rich_media", ButtonsGroupColumns: 6, ButtonsGroupRows: 7, BgColor: "#0b0c0b", Buttons: [{ Columns: 6, Rows: 4, ActionType: "open-url", ActionBody: url, Image: vehicle.photos[0]?.url }, { Columns: 6, Rows: 2, ActionType: "open-url", ActionBody: url, Text: `<font color=#ffffff>${text.replace(/\n/g, "<br>").slice(0, 700)}</font>`, TextSize: "small", TextVAlign: "middle", TextHAlign: "left" }, { Columns: 6, Rows: 1, ActionType: "open-url", ActionBody: url, BgColor: "#ff6b00", Text: "<font color=#ffffff><b>Подивитися авто</b></font>" }] } }),
+    body: JSON.stringify({ broadcast_list: recipients, min_api_version: 7, sender: { name: credentials.viberSenderName || "BRILLIANTCARS" }, type: "rich_media", alt_text: text, rich_media: { Type: "rich_media", ButtonsGroupColumns: 6, ButtonsGroupRows: 7, BgColor: "#0b0c0b", Buttons: [{ Columns: 6, Rows: 4, ActionType: "open-url", ActionBody: url, Image: vehicle.photos[0]?.url }, { Columns: 6, Rows: 2, ActionType: "open-url", ActionBody: url, Text: `<font color=#ffffff>${text.replace(/\n/g, "<br>").slice(0, 700)}</font>`, TextSize: "small", TextVAlign: "middle", TextHAlign: "left" }, { Columns: 6, Rows: 1, ActionType: "open-url", ActionBody: url, BgColor: "#ff6b00", Text: "<font color=#ffffff><b>Подивитися авто</b></font>" }] } }),
     signal: AbortSignal.timeout(25_000),
   });
   const payload = await jsonResponse(response);

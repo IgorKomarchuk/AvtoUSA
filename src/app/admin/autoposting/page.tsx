@@ -17,6 +17,7 @@ export default async function AutopostingPage() {
     ["Історія", "/admin/autoposting/history"],
     ["Помилки", "/admin/autoposting/errors"],
     ["Шаблони", "/admin/autoposting/templates"],
+    ["Інтеграції", "/admin/autoposting/integrations"],
   ];
   return (
     <AdminShell title="Автопублікації" description="Керування якістю лотів, каналами, чергою та історією публікацій.">
