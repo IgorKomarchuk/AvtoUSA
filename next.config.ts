@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
     ],
   },
   poweredByHeader: false,
+  async headers() {
+    return [
+      { source: "/admin/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }] },
+      { source: "/api/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }] },
+    ];
+  },
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },

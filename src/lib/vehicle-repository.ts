@@ -3,6 +3,7 @@ import "server-only";
 import { mockVehicles } from "./mock-data";
 import { getPrisma } from "./prisma";
 import type { VehicleData, VehicleFilters, VehiclePageResult } from "./types";
+import { catalogSegment } from "./seo";
 
 function filterMockVehicles(filters: VehicleFilters) {
   if (process.env.MOCK_AUCTION_MODE === "false") return [];
@@ -114,17 +115,54 @@ export async function getVehicleBySlug(slug: string) {
 }
 
 export async function getCatalogFacets() {
-  const result = await getVehicles({ limit: 24 });
+  const prisma = getPrisma();
+  let vehicles: Array<Pick<VehicleData, "make" | "model" | "bodyStyle" | "fuel" | "drive" | "primaryDamage" | "state">> = [];
+  if (prisma) {
+    vehicles = await prisma.vehicle.findMany({
+      where: { isActive: true, ...(process.env.MOCK_AUCTION_MODE === "false" ? { isDemo: false } : {}) },
+      select: { make: true, model: true, bodyStyle: true, fuel: true, drive: true, primaryDamage: true, state: true },
+    }).catch(() => []);
+  }
+  if (!vehicles.length) vehicles = filterMockVehicles({});
   const values = <T,>(items: Array<T | null | undefined>) => [...new Set(items.filter(Boolean) as T[])].sort();
   return {
-    makes: values(result.vehicles.map((item) => item.make)),
-    models: values(result.vehicles.map((item) => item.model)),
-    bodyStyles: values(result.vehicles.map((item) => item.bodyStyle)),
-    fuels: values(result.vehicles.map((item) => item.fuel)),
-    drives: values(result.vehicles.map((item) => item.drive)),
-    damages: values(result.vehicles.map((item) => item.primaryDamage)),
-    states: values(result.vehicles.map((item) => item.state)),
+    makes: values(vehicles.map((item) => item.make)),
+    models: values(vehicles.map((item) => item.model)),
+    bodyStyles: values(vehicles.map((item) => item.bodyStyle)),
+    fuels: values(vehicles.map((item) => item.fuel)),
+    drives: values(vehicles.map((item) => item.drive)),
+    damages: values(vehicles.map((item) => item.primaryDamage)),
+    states: values(vehicles.map((item) => item.state)),
   };
+}
+
+export async function getSeoInventory() {
+  const prisma = getPrisma();
+  if (!prisma) return process.env.MOCK_AUCTION_MODE === "false" ? [] : mockVehicles.filter((vehicle) => !vehicle.isDemo);
+  try {
+    return await prisma.vehicle.findMany({
+      where: { isActive: true, isDemo: false },
+      select: {
+        slug: true, make: true, model: true, updatedAt: true, lastSyncedAt: true,
+        photos: { orderBy: { position: "asc" }, select: { url: true, alt: true, position: true } },
+      },
+      orderBy: { updatedAt: "desc" },
+    });
+  } catch {
+    return [];
+  }
+}
+
+export async function resolveCatalogTaxonomy(makeSlug: string, modelSlug?: string) {
+  const inventory = await getSeoInventory();
+  const make = inventory.map((vehicle) => vehicle.make).find((value): value is string => typeof value === "string" && catalogSegment(value) === makeSlug.toLowerCase());
+  if (!make) return null;
+  if (!modelSlug) return { make };
+  const model = inventory
+    .filter((vehicle) => vehicle.make === make)
+    .map((vehicle) => vehicle.model)
+    .find((value): value is string => typeof value === "string" && catalogSegment(value) === modelSlug.toLowerCase());
+  return model ? { make, model } : null;
 }
 
 export async function getInstagramPublishedVehicles(limit = 24) {

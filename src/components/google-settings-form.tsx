@@ -24,6 +24,8 @@ export function GoogleSettingsForm({ settings }: { settings: GoogleTrackingSetti
       leadConversionLabel: String(form.get("leadConversionLabel") ?? "").trim(),
       phoneConversionLabel: String(form.get("phoneConversionLabel") ?? "").trim(),
       consentBannerEnabled: form.get("consentBannerEnabled") === "on",
+      searchConsoleVerification: String(form.get("searchConsoleVerification") ?? "").trim(),
+      bingSiteVerification: String(form.get("bingSiteVerification") ?? "").trim(),
     };
     try {
       const response = await fetch("/api/admin/google", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
@@ -54,6 +56,14 @@ export function GoogleSettingsForm({ settings }: { settings: GoogleTrackingSetti
       </section>
       <section className="rounded-3xl border border-white/10 bg-white/[.035] p-5 sm:p-7">
         <label className="flex items-start gap-3"><input type="checkbox" name="consentBannerEnabled" defaultChecked={settings.consentBannerEnabled} className="mt-0.5 size-5 accent-[#ff6b00]" /><span><strong className="block">Google Consent Mode v2</strong><span className="mt-1 block text-sm leading-6 text-white/45">Рекомендовано для України та Європи. До згоди користувача analytics_storage, ad_storage, ad_user_data та ad_personalization мають значення denied.</span></span></label>
+      </section>
+      <section className="rounded-3xl border border-white/10 bg-white/[.035] p-5 sm:p-7">
+        <h2 className="text-xl font-bold">Індексація сайту</h2>
+        <p className="mt-1 text-sm text-white/45">Коди підтвердження Google Search Console та Bing Webmaster Tools. Вставляйте лише значення атрибута content, не весь meta-тег.</p>
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <label className="grid gap-2 text-xs font-semibold text-white/55">Google verification code<input className="input font-mono" name="searchConsoleVerification" defaultValue={settings.searchConsoleVerification} placeholder="Необов’язково" autoComplete="off" /></label>
+          <label className="grid gap-2 text-xs font-semibold text-white/55">Bing verification code<input className="input font-mono" name="bingSiteVerification" defaultValue={settings.bingSiteVerification} placeholder="Необов’язково" autoComplete="off" /></label>
+        </div>
       </section>
       <section className="rounded-3xl border border-emerald-300/15 bg-emerald-400/[.045] p-5 text-sm text-white/60 sm:p-7"><h2 className="font-bold text-white">Події, які передаються</h2><ul className="mt-3 grid gap-2 sm:grid-cols-2"><li>page_view — перегляд сторінки</li><li>view_item — перегляд автомобіля</li><li>generate_lead — успішна заявка</li><li>click_phone — клік на телефон</li><li>calculate_quote — перехід із калькулятора</li></ul><p className="mt-4 text-xs leading-5 text-white/40">Ім’я, телефон, email та інші персональні дані в Google не надсилаються. UTM та Google Click ID зберігаються разом із заявкою в адмінці.</p></section>
       <div className="flex flex-wrap items-center gap-4"><Button type="submit" disabled={busy}>{busy ? <LoaderCircle size={17} className="animate-spin" /> : <CheckCircle2 size={17} />}Зберегти Google налаштування</Button>{message && <p className={`text-sm ${success ? "text-emerald-300" : "text-rose-300"}`} role="status">{message}</p>}</div>

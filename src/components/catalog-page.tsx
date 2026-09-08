@@ -7,18 +7,22 @@ import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 import { getCatalogFacets, getVehicles } from "@/lib/vehicle-repository";
 import type { AuctionPlatform, VehicleFilters } from "@/lib/types";
+import { catalogRobotsAndCanonical, catalogSegment } from "@/lib/seo";
 
 export type CatalogSearchParams = Record<string, string | string[] | undefined>;
 
 const first = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value;
 const number = (value: string | undefined) => value && Number.isFinite(Number(value)) ? Number(value) : undefined;
 
-export function catalogMetadata(label?: string): Metadata {
+export function catalogMetadata(label?: string, basePath?: string, searchParams: CatalogSearchParams = {}): Metadata {
   const name = label ? `${label} — авто з аукціонів США` : "Автомобілі з аукціонів США";
+  const route = basePath ?? (label ? `/cars/${catalogSegment(label)}` : "/cars");
+  const { canonical, robots, page } = catalogRobotsAndCanonical(route, searchParams);
   return {
-    title: name,
+    title: page ? `${name} — сторінка ${page}` : name,
     description: `Каталог ${label ? `${label} ` : ""}автомобілів з аукціонів Copart та IAAI: VIN, фото, пробіг, пошкодження, ставки й розрахунок доставки в Україну.`,
-    alternates: { canonical: label ? `/cars/${label.toLowerCase().replaceAll(" ", "-")}` : "/cars" },
+    alternates: { canonical },
+    robots,
   };
 }
 

@@ -12,6 +12,8 @@ export type GoogleTrackingSettings = {
   leadConversionLabel: string;
   phoneConversionLabel: string;
   consentBannerEnabled: boolean;
+  searchConsoleVerification: string;
+  bingSiteVerification: string;
 };
 
 export const defaultGoogleTrackingSettings: GoogleTrackingSettings = {
@@ -22,6 +24,8 @@ export const defaultGoogleTrackingSettings: GoogleTrackingSettings = {
   leadConversionLabel: process.env.GOOGLE_ADS_LEAD_CONVERSION_LABEL ?? "",
   phoneConversionLabel: process.env.GOOGLE_ADS_PHONE_CONVERSION_LABEL ?? "",
   consentBannerEnabled: true,
+  searchConsoleVerification: process.env.GOOGLE_SITE_VERIFICATION ?? "",
+  bingSiteVerification: process.env.BING_SITE_VERIFICATION ?? "",
 };
 
 function stringValue(value: unknown, fallback = "") {
@@ -42,6 +46,8 @@ export function normalizeGoogleTrackingSettings(value: unknown): GoogleTrackingS
     leadConversionLabel: stringValue(source.leadConversionLabel, defaultGoogleTrackingSettings.leadConversionLabel),
     phoneConversionLabel: stringValue(source.phoneConversionLabel, defaultGoogleTrackingSettings.phoneConversionLabel),
     consentBannerEnabled: booleanValue(source.consentBannerEnabled, true),
+    searchConsoleVerification: stringValue(source.searchConsoleVerification, defaultGoogleTrackingSettings.searchConsoleVerification),
+    bingSiteVerification: stringValue(source.bingSiteVerification, defaultGoogleTrackingSettings.bingSiteVerification),
   };
 }
 

@@ -14,6 +14,8 @@ const schema = z.object({
   leadConversionLabel: optionalId(/^[A-Za-z0-9_-]+$/, "Некоректний label конверсії заявки"),
   phoneConversionLabel: optionalId(/^[A-Za-z0-9_-]+$/, "Некоректний label конверсії дзвінка"),
   consentBannerEnabled: z.boolean(),
+  searchConsoleVerification: z.string().trim().max(255).regex(/^[A-Za-z0-9_-]*$/, "Некоректний код Google Search Console"),
+  bingSiteVerification: z.string().trim().max(255).regex(/^[A-Za-z0-9_-]*$/, "Некоректний код Bing Webmaster Tools"),
 }).superRefine((value, context) => {
   if (value.ga4Enabled && !value.ga4MeasurementId) context.addIssue({ code: "custom", path: ["ga4MeasurementId"], message: "Вкажіть GA4 Measurement ID" });
   if (value.googleAdsEnabled && !value.googleAdsId) context.addIssue({ code: "custom", path: ["googleAdsId"], message: "Вкажіть Google Ads ID" });
