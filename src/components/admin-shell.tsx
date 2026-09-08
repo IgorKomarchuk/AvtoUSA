@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Activity, ArrowLeft, BarChart3, CarFront, ExternalLink, Gauge, LogOut, Megaphone, MessageCircle, Users } from "lucide-react";
+import { Activity, ArrowLeft, BarChart3, CarFront, ContactRound, ExternalLink, Gauge, LogOut, Megaphone, MessageCircle, Users } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", Icon: Gauge },
@@ -8,6 +8,7 @@ const navItems = [
   { href: "/admin/autoposting/integrations", label: "Месенджери", Icon: MessageCircle },
   { href: "/admin/google", label: "Google", Icon: BarChart3 },
   { href: "/admin/leads", label: "Заявки", Icon: Users },
+  { href: "/admin/contacts", label: "Контакти", Icon: ContactRound },
 ] as const;
 
 export function AdminShell({ children, title, description }: { children: React.ReactNode; title: string; description?: string }) {

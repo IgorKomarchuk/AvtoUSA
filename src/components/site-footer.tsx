@@ -2,8 +2,10 @@ import Link from "next/link";
 import { Instagram, Mail, MessageCircle } from "lucide-react";
 import { TrackedPhoneLink } from "./tracked-phone-link";
 import { CookieSettingsButton } from "./cookie-settings-button";
+import { getSiteContacts } from "@/lib/site-contacts";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const contacts = await getSiteContacts();
   return (
     <footer className="border-t border-white/10 bg-[#050605] py-14">
       <div className="shell">
@@ -26,11 +28,11 @@ export function SiteFooter() {
           </div>
           <div>
             <h2 className="text-xs font-black uppercase tracking-[.14em] text-white/40">Зв’язок</h2>
-            <TrackedPhoneLink location="footer" className="mt-4 block text-lg font-bold no-underline" ariaLabel="Зателефонувати +38 073 261 09 65">+38 073 261 09 65</TrackedPhoneLink>
-            <a className="mt-3 flex items-center gap-2 break-all text-sm text-white/65 no-underline transition hover:text-white" href="mailto:racenkodmitrij8@gmail.com"><Mail size={16} className="shrink-0 text-[#ff7b1a]" />racenkodmitrij8@gmail.com</a>
+            <TrackedPhoneLink phone={contacts.phoneHref} location="footer" className="mt-4 block text-lg font-bold no-underline" ariaLabel={`Зателефонувати ${contacts.phoneDisplay}`}>{contacts.phoneDisplay}</TrackedPhoneLink>
+            <a className="mt-3 flex items-center gap-2 break-all text-sm text-white/65 no-underline transition hover:text-white" href={`mailto:${contacts.email}`}><Mail size={16} className="shrink-0 text-[#ff7b1a]" />{contacts.email}</a>
             <div className="mt-4 flex gap-2">
-              <a href="https://t.me/" target="_blank" rel="noreferrer" className="grid size-11 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white" aria-label="Telegram"><MessageCircle size={18} /></a>
-              <a href="https://instagram.com/" target="_blank" rel="noreferrer" className="grid size-11 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white" aria-label="Instagram"><Instagram size={18} /></a>
+              <a href={contacts.telegramUrl} target="_blank" rel="noreferrer" className="grid size-11 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white" aria-label="Telegram"><MessageCircle size={18} /></a>
+              <a href={contacts.instagramUrl} target="_blank" rel="noreferrer" className="grid size-11 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white" aria-label="Instagram"><Instagram size={18} /></a>
             </div>
           </div>
         </div>

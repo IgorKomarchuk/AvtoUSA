@@ -103,6 +103,7 @@ If neither PostgreSQL nor Telegram is configured, the form returns a clear confi
 - `/admin/autoposting/integrations` — encrypted Telegram, Facebook, Instagram and Viber credentials with connection checks
 - `/admin/google` — GA4, Google Ads conversions and Consent Mode v2
 - `/admin/leads` — lead source, vehicle and UTM attribution
+- `/admin/contacts` — editable public phone, email, Telegram and Instagram links
 
 `SESSION_SECRET` must contain at least 32 random characters. Admin pages are `noindex` and API actions verify the signed HTTP-only session.
 

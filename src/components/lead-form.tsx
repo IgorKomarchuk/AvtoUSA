@@ -11,6 +11,8 @@ export interface LeadVehicleContext {
   lotNumber?: string;
   vehicleTitle?: string;
   price?: string;
+  vehicleUrl?: string;
+  source?: string;
 }
 
 export function LeadForm({ vehicle, compact = false }: { vehicle?: LeadVehicleContext; compact?: boolean }) {
@@ -38,8 +40,8 @@ export function LeadForm({ vehicle, compact = false }: { vehicle?: LeadVehicleCo
       lotNumber: vehicle?.lotNumber,
       vehicleTitle: vehicle?.vehicleTitle,
       price: vehicle?.price,
-      vehicleUrl: window.location.href,
-      source: vehicle ? "vehicle_detail" : "website_form",
+      vehicleUrl: vehicle?.vehicleUrl ? new URL(vehicle.vehicleUrl, window.location.origin).href : window.location.href,
+      source: vehicle?.source ?? (vehicle ? "vehicle_detail" : "website_form"),
       sourceChannel,
       utmSource,
       utmMedium: query.get("utm_medium") ?? "",
@@ -64,7 +66,7 @@ export function LeadForm({ vehicle, compact = false }: { vehicle?: LeadVehicleCo
   }
 
   if (state === "success") {
-    return <div className="flex min-h-64 flex-col items-center justify-center rounded-3xl border border-emerald-400/20 bg-emerald-400/[.07] p-8 text-center"><CheckCircle2 size={40} className="text-emerald-400" /><h3 className="mt-4 text-2xl font-bold">Дякуємо! Менеджер зв’яжеться з вами.</h3><button type="button" className="mt-4 text-sm text-white/55 underline" onClick={() => setState("idle")}>Надіслати ще одну заявку</button></div>;
+    return <div className="flex min-h-64 flex-col items-center justify-center rounded-3xl border border-emerald-400/20 bg-emerald-400/[.07] p-8 text-center"><CheckCircle2 size={40} className="text-emerald-400" /><h3 className="mt-4 text-2xl font-bold">Дякуємо! Ми зв’яжемося з вами найближчим часом.</h3><button type="button" className="mt-4 text-sm text-white/55 underline" onClick={() => setState("idle")}>Надіслати ще одну заявку</button></div>;
   }
 
   return (

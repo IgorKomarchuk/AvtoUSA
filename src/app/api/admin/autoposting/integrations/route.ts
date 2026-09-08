@@ -5,7 +5,7 @@ import { getSocialCredentials, saveSocialCredentials } from "@/lib/social-creden
 
 const saveSchema = z.object({
   action: z.literal("save"),
-  telegramBotToken: z.string().max(300).optional(), telegramChannelId: z.string().max(200).optional(),
+  telegramBotToken: z.string().max(300).optional(), telegramChannelId: z.string().max(200).optional(), telegramLeadChatId: z.string().max(200).optional(),
   facebookPageId: z.string().max(200).optional(), facebookPageAccessToken: z.string().max(1000).optional(),
   instagramBusinessAccountId: z.string().max(200).optional(), viberBotToken: z.string().max(1000).optional(),
   viberBroadcastList: z.string().max(5000).optional(), viberSenderName: z.string().max(100).optional(),
@@ -20,11 +20,12 @@ async function readJson(response: Response) {
 async function testConnection(channel: "TELEGRAM" | "FACEBOOK" | "INSTAGRAM" | "VIBER") {
   const credentials = await getSocialCredentials();
   if (channel === "TELEGRAM") {
-    if (!credentials.telegramBotToken || !credentials.telegramChannelId) throw new Error("Заповніть токен бота та ID каналу Telegram");
+    const chatId = credentials.telegramLeadChatId || credentials.telegramChannelId;
+    if (!credentials.telegramBotToken || !chatId) throw new Error("Заповніть токен бота та хоча б один Telegram Chat ID");
     const bot = await fetch(`https://api.telegram.org/bot${credentials.telegramBotToken}/getMe`, { signal: AbortSignal.timeout(15_000) });
     const payload = await readJson(bot);
     if (!bot.ok || payload?.ok !== true) throw new Error(String(payload?.description ?? "Telegram не підтвердив токен"));
-    const chat = await fetch(`https://api.telegram.org/bot${credentials.telegramBotToken}/getChat?chat_id=${encodeURIComponent(credentials.telegramChannelId)}`, { signal: AbortSignal.timeout(15_000) });
+    const chat = await fetch(`https://api.telegram.org/bot${credentials.telegramBotToken}/getChat?chat_id=${encodeURIComponent(chatId)}`, { signal: AbortSignal.timeout(15_000) });
     const chatPayload = await readJson(chat);
     if (!chat.ok || chatPayload?.ok !== true) throw new Error(String(chatPayload?.description ?? "Telegram не знайшов канал"));
     const result = (chatPayload?.result ?? {}) as Record<string, unknown>;

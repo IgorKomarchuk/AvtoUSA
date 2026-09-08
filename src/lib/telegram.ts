@@ -1,14 +1,16 @@
 import "server-only";
 
 import type { LeadInput } from "./validation";
+import { getSocialCredentials } from "./social-credentials";
 
 function escapeHtml(value?: string | null) {
   return (value ?? "—").replace(/[&<>]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[character] ?? character);
 }
 
 export async function sendLeadToTelegram(lead: LeadInput) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const credentials = await getSocialCredentials();
+  const token = credentials.telegramBotToken;
+  const chatId = credentials.telegramLeadChatId;
   if (!token || !chatId) return { delivered: false, reason: "not_configured" as const };
 
   const text = [

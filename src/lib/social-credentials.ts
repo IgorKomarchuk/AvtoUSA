@@ -7,7 +7,7 @@ import { getPrisma } from "./prisma";
 const SETTING_KEY = "social_credentials_v1";
 
 export const SOCIAL_CREDENTIAL_FIELDS = [
-  "telegramBotToken", "telegramChannelId", "facebookPageId", "facebookPageAccessToken",
+  "telegramBotToken", "telegramChannelId", "telegramLeadChatId", "facebookPageId", "facebookPageAccessToken",
   "instagramBusinessAccountId", "viberBotToken", "viberBroadcastList", "viberSenderName",
 ] as const;
 export type SocialCredentialField = (typeof SOCIAL_CREDENTIAL_FIELDS)[number];
@@ -15,6 +15,7 @@ export type SocialCredentials = Record<SocialCredentialField, string>;
 
 const ENV_BY_FIELD: Record<SocialCredentialField, string> = {
   telegramBotToken: "TELEGRAM_BOT_TOKEN", telegramChannelId: "TELEGRAM_CHANNEL_ID",
+  telegramLeadChatId: "TELEGRAM_CHAT_ID",
   facebookPageId: "FACEBOOK_PAGE_ID", facebookPageAccessToken: "FACEBOOK_PAGE_ACCESS_TOKEN",
   instagramBusinessAccountId: "INSTAGRAM_BUSINESS_ACCOUNT_ID", viberBotToken: "VIBER_BOT_TOKEN",
   viberBroadcastList: "VIBER_BROADCAST_LIST", viberSenderName: "VIBER_SENDER_NAME",
