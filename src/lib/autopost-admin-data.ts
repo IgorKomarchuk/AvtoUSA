@@ -9,13 +9,15 @@ export async function getAutopostDashboard() {
   const prisma = getPrisma();
   const service = new AutopostingService();
   const credentials = await getSocialCredentials();
-  if (!prisma) return { databaseReady: false, mode: "manual", filters: await service.getFilters(), ready: 0, publishedToday: 0, errors: 0, lastPublishedAt: null as Date | null, channels: SOCIAL_CHANNELS.map((channel) => ({ channel, configured: channelConfigured(channel, credentials), enabled: false, dailyLimit: DEFAULT_CHANNEL_CONFIG[channel].dailyLimit, timeWindows: DEFAULT_CHANNEL_CONFIG[channel].timeWindows })) };
+  if (!prisma) return { databaseReady: false, mode: "manual", filters: await service.getFilters(), ready: 0, publishedToday: 0, errors: 0, lastPublishedAt: null as Date | null, workerHeartbeatAt: null as Date | null, workerOnline: false, channels: SOCIAL_CHANNELS.map((channel) => ({ channel, configured: channelConfigured(channel, credentials), enabled: false, dailyLimit: DEFAULT_CHANNEL_CONFIG[channel].dailyLimit, timeWindows: DEFAULT_CHANNEL_CONFIG[channel].timeWindows })) };
   await service.ensureDefaults();
   const today = localDayRange();
-  const [mode, filters, candidates, publishedToday, errors, lastPublication, settings] = await Promise.all([
-    service.getMode(), service.getFilters(), service.findCandidates(), prisma.socialPublication.count({ where: { status: "PUBLISHED", publishedAt: { gte: today.start, lt: today.end } } }), prisma.socialPublication.count({ where: { status: "FAILED" } }), prisma.socialPublication.findFirst({ where: { status: "PUBLISHED" }, orderBy: { publishedAt: "desc" } }), prisma.socialChannelSetting.findMany({ orderBy: { channel: "asc" } }),
+  const [mode, filters, candidates, publishedToday, errors, lastPublication, settings, workerHeartbeat] = await Promise.all([
+    service.getMode(), service.getFilters(), service.findCandidates(), prisma.socialPublication.count({ where: { status: "PUBLISHED", publishedAt: { gte: today.start, lt: today.end } } }), prisma.socialPublication.count({ where: { status: "FAILED" } }), prisma.socialPublication.findFirst({ where: { status: "PUBLISHED" }, orderBy: { publishedAt: "desc" } }), prisma.socialChannelSetting.findMany({ orderBy: { channel: "asc" } }), prisma.siteSetting.findUnique({ where: { key: "autopost_worker_heartbeat" } }),
   ]);
-  return { databaseReady: true, mode, filters, ready: candidates.length, publishedToday, errors, lastPublishedAt: lastPublication?.publishedAt ?? null, channels: settings.map((setting) => ({ ...setting, configured: channelConfigured(setting.channel, credentials), timeWindows: Array.isArray(setting.timeWindows) ? setting.timeWindows as string[] : [] })) };
+  const workerHeartbeatAt = typeof workerHeartbeat?.value === "string" ? new Date(workerHeartbeat.value) : null;
+  const workerOnline = Boolean(workerHeartbeatAt && Date.now() - workerHeartbeatAt.getTime() < 3 * 60_000);
+  return { databaseReady: true, mode, filters, ready: candidates.length, publishedToday, errors, lastPublishedAt: lastPublication?.publishedAt ?? null, workerHeartbeatAt, workerOnline, channels: settings.map((setting) => ({ ...setting, configured: channelConfigured(setting.channel, credentials), timeWindows: Array.isArray(setting.timeWindows) ? setting.timeWindows as string[] : [] })) };
 }
 
 export async function getAutopostCandidates() {

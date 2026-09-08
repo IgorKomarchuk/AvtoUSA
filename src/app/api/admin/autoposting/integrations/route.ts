@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getAdminSession } from "@/lib/auth";
-import { getSocialCredentials, saveSocialCredentials } from "@/lib/social-credentials";
+import { getSocialCredentials, saveSocialCredentials, saveSocialIntegrationCheck } from "@/lib/social-credentials";
+import { getPrisma } from "@/lib/prisma";
+import { DEFAULT_TEMPLATES } from "@/lib/social-config";
+import { renderSocialTemplate } from "@/lib/social-template";
+import { publishToSocialChannel } from "@/lib/social-publishers";
+import type { VehicleData } from "@/lib/types";
 
 const saveSchema = z.object({
   action: z.literal("save"),
@@ -11,7 +16,8 @@ const saveSchema = z.object({
   viberBroadcastList: z.string().max(5000).optional(), viberSenderName: z.string().max(100).optional(),
 });
 const testSchema = z.object({ action: z.literal("test"), channel: z.enum(["TELEGRAM", "FACEBOOK", "INSTAGRAM", "VIBER"]) });
-const schema = z.discriminatedUnion("action", [saveSchema, testSchema]);
+const testPublicationSchema = z.object({ action: z.literal("test_publication"), channel: z.enum(["TELEGRAM", "FACEBOOK", "INSTAGRAM", "VIBER"]) });
+const schema = z.discriminatedUnion("action", [saveSchema, testSchema, testPublicationSchema]);
 
 async function readJson(response: Response) {
   return response.json().catch(() => null) as Promise<Record<string, unknown> | null>;
@@ -20,16 +26,20 @@ async function readJson(response: Response) {
 async function testConnection(channel: "TELEGRAM" | "FACEBOOK" | "INSTAGRAM" | "VIBER") {
   const credentials = await getSocialCredentials();
   if (channel === "TELEGRAM") {
-    const chatId = credentials.telegramLeadChatId || credentials.telegramChannelId;
-    if (!credentials.telegramBotToken || !chatId) throw new Error("Заповніть токен бота та хоча б один Telegram Chat ID");
+    if (!credentials.telegramBotToken || !credentials.telegramChannelId) throw new Error("Заповніть токен бота та Channel ID для автопостів");
     const bot = await fetch(`https://api.telegram.org/bot${credentials.telegramBotToken}/getMe`, { signal: AbortSignal.timeout(15_000) });
     const payload = await readJson(bot);
     if (!bot.ok || payload?.ok !== true) throw new Error(String(payload?.description ?? "Telegram не підтвердив токен"));
-    const chat = await fetch(`https://api.telegram.org/bot${credentials.telegramBotToken}/getChat?chat_id=${encodeURIComponent(chatId)}`, { signal: AbortSignal.timeout(15_000) });
-    const chatPayload = await readJson(chat);
-    if (!chat.ok || chatPayload?.ok !== true) throw new Error(String(chatPayload?.description ?? "Telegram не знайшов канал"));
-    const result = (chatPayload?.result ?? {}) as Record<string, unknown>;
-    return `Telegram підключено: ${String(result.title ?? result.username ?? credentials.telegramChannelId)}`;
+    const destinations = [credentials.telegramChannelId, credentials.telegramLeadChatId].filter(Boolean);
+    const names: string[] = [];
+    for (const chatId of destinations) {
+      const chat = await fetch(`https://api.telegram.org/bot${credentials.telegramBotToken}/getChat?chat_id=${encodeURIComponent(chatId)}`, { signal: AbortSignal.timeout(15_000) });
+      const chatPayload = await readJson(chat);
+      if (!chat.ok || chatPayload?.ok !== true) throw new Error(String(chatPayload?.description ?? `Telegram не знайшов ${chatId}`));
+      const result = (chatPayload?.result ?? {}) as Record<string, unknown>;
+      names.push(String(result.title ?? result.username ?? chatId));
+    }
+    return `Telegram підключено: ${names.join("; ")}`;
   }
   if (channel === "FACEBOOK" || channel === "INSTAGRAM") {
     const id = channel === "FACEBOOK" ? credentials.facebookPageId : credentials.instagramBusinessAccountId;
@@ -47,6 +57,22 @@ async function testConnection(channel: "TELEGRAM" | "FACEBOOK" | "INSTAGRAM" | "
   return `Viber підключено: ${String(payload?.name ?? "бот активний")}`;
 }
 
+async function testPublication(channel: "TELEGRAM" | "FACEBOOK" | "INSTAGRAM" | "VIBER") {
+  const prisma = getPrisma();
+  if (!prisma) throw new Error("PostgreSQL не підключено");
+  const vehicle = await prisma.vehicle.findFirst({
+    where: { isActive: true, isDemo: false, photos: { some: {} } },
+    include: { photos: { orderBy: { position: "asc" }, take: 1 } },
+    orderBy: { lastSyncedAt: "desc" },
+  });
+  if (!vehicle) throw new Error("Немає реального автомобіля з фото для тесту");
+  const template = await prisma.socialTemplate.findUnique({ where: { channel } });
+  const rendered = renderSocialTemplate(template?.body ?? DEFAULT_TEMPLATES[channel], vehicle as unknown as VehicleData, channel);
+  const marker = "🧪 ТЕСТОВА ПУБЛІКАЦІЯ BRILLIANTCARS\nЦе перевірка інтеграції. Повідомлення можна видалити.\n\n";
+  const receipt = await publishToSocialChannel(channel, vehicle as unknown as VehicleData, `${marker}${rendered}`);
+  return { message: `Тестовий пост із ${vehicle.title} успішно надіслано`, receipt };
+}
+
 export async function POST(request: Request) {
   if (!(await getAdminSession())) return NextResponse.json({ ok: false, message: "Потрібна авторизація" }, { status: 401 });
   const parsed = schema.safeParse(await request.json().catch(() => null));
@@ -58,8 +84,19 @@ export async function POST(request: Request) {
       await saveSocialCredentials(values);
       return NextResponse.json({ ok: true, message: "Credentials зашифровано та збережено" });
     }
-    return NextResponse.json({ ok: true, message: await testConnection(parsed.data.channel) });
+    if (parsed.data.action === "test") {
+      const message = await testConnection(parsed.data.channel);
+      await saveSocialIntegrationCheck(parsed.data.channel, { ok: true, kind: "connection", message, checkedAt: new Date().toISOString() });
+      return NextResponse.json({ ok: true, message });
+    }
+    const result = await testPublication(parsed.data.channel);
+    await saveSocialIntegrationCheck(parsed.data.channel, { ok: true, kind: "publication", message: result.message, checkedAt: new Date().toISOString(), externalPostUrl: result.receipt.externalPostUrl });
+    return NextResponse.json({ ok: true, message: result.message, externalPostUrl: result.receipt.externalPostUrl });
   } catch (error) {
-    return NextResponse.json({ ok: false, message: error instanceof Error ? error.message : "Помилка інтеграції" }, { status: 400 });
+    const message = error instanceof Error ? error.message : "Помилка інтеграції";
+    if (parsed.data.action !== "save") {
+      await saveSocialIntegrationCheck(parsed.data.channel, { ok: false, kind: parsed.data.action === "test" ? "connection" : "publication", message, checkedAt: new Date().toISOString() }).catch(() => undefined);
+    }
+    return NextResponse.json({ ok: false, message }, { status: 400 });
   }
 }

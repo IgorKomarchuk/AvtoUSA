@@ -28,6 +28,14 @@ async function tick() {
   if (running) return;
   running = true;
   try {
+    const prisma = getPrisma();
+    if (prisma) {
+      await prisma.siteSetting.upsert({
+        where: { key: "autopost_worker_heartbeat" },
+        create: { key: "autopost_worker_heartbeat", value: new Date().toISOString() },
+        update: { value: new Date().toISOString() },
+      });
+    }
     const autopost = new AutopostingService();
     await autopost.ensureDefaults();
     await autopost.processQueue(5);

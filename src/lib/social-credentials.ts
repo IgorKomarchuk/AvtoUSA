@@ -5,6 +5,7 @@ import type { SocialChannel } from "@prisma/client";
 import { getPrisma } from "./prisma";
 
 const SETTING_KEY = "social_credentials_v1";
+const CHECKS_SETTING_KEY = "social_integration_checks_v1";
 
 export const SOCIAL_CREDENTIAL_FIELDS = [
   "telegramBotToken", "telegramChannelId", "telegramLeadChatId", "facebookPageId", "facebookPageAccessToken",
@@ -12,6 +13,13 @@ export const SOCIAL_CREDENTIAL_FIELDS = [
 ] as const;
 export type SocialCredentialField = (typeof SOCIAL_CREDENTIAL_FIELDS)[number];
 export type SocialCredentials = Record<SocialCredentialField, string>;
+export type SocialIntegrationCheck = {
+  ok: boolean;
+  kind: "connection" | "publication";
+  message: string;
+  checkedAt: string;
+  externalPostUrl?: string | null;
+};
 
 const ENV_BY_FIELD: Record<SocialCredentialField, string> = {
   telegramBotToken: "TELEGRAM_BOT_TOKEN", telegramChannelId: "TELEGRAM_CHANNEL_ID",
@@ -74,6 +82,28 @@ export async function saveSocialCredentials(values: Partial<SocialCredentials>) 
   await prisma.siteSetting.upsert({ where: { key: SETTING_KEY }, create: { key: SETTING_KEY, value: next }, update: { value: next } });
 }
 
+export async function saveSocialIntegrationCheck(channel: SocialChannel, check: SocialIntegrationCheck) {
+  const prisma = getPrisma();
+  if (!prisma) throw new Error("PostgreSQL не підключено");
+  const current = await prisma.siteSetting.findUnique({ where: { key: CHECKS_SETTING_KEY } });
+  const value = current?.value && typeof current.value === "object" && !Array.isArray(current.value)
+    ? current.value as Partial<Record<SocialChannel, SocialIntegrationCheck>>
+    : {};
+  await prisma.siteSetting.upsert({
+    where: { key: CHECKS_SETTING_KEY },
+    create: { key: CHECKS_SETTING_KEY, value: { ...value, [channel]: check } },
+    update: { value: { ...value, [channel]: check } },
+  });
+}
+
+export async function getSocialIntegrationChecks() {
+  const prisma = getPrisma();
+  if (!prisma) return {} as Partial<Record<SocialChannel, SocialIntegrationCheck>>;
+  const setting = await prisma.siteSetting.findUnique({ where: { key: CHECKS_SETTING_KEY } });
+  if (!setting?.value || typeof setting.value !== "object" || Array.isArray(setting.value)) return {};
+  return setting.value as Partial<Record<SocialChannel, SocialIntegrationCheck>>;
+}
+
 export function channelConfigured(channel: SocialChannel, credentials: SocialCredentials) {
   if (channel === "TELEGRAM") return Boolean(credentials.telegramBotToken && credentials.telegramChannelId);
   if (channel === "FACEBOOK") return Boolean(credentials.facebookPageId && credentials.facebookPageAccessToken);
@@ -91,9 +121,10 @@ function mask(value: string) {
 }
 
 export async function getSocialCredentialSummary() {
-  const values = await getSocialCredentials();
+  const [values, checks] = await Promise.all([getSocialCredentials(), getSocialIntegrationChecks()]);
   return {
     configured: Object.fromEntries((["TELEGRAM", "FACEBOOK", "INSTAGRAM", "VIBER"] as SocialChannel[]).map((channel) => [channel, channelConfigured(channel, values)])) as Record<SocialChannel, boolean>,
     masks: Object.fromEntries(SOCIAL_CREDENTIAL_FIELDS.map((field) => [field, mask(values[field])])) as Record<SocialCredentialField, string | null>,
+    checks,
   };
 }
