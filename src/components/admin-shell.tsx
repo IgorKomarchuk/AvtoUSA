@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Activity, BarChart3, CarFront, ExternalLink, Gauge, LogOut, Megaphone, Users } from "lucide-react";
+import { Activity, ArrowLeft, BarChart3, CarFront, ExternalLink, Gauge, LogOut, Megaphone, MessageCircle, Users } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", Icon: Gauge },
   { href: "/admin/sync", label: "Синхронізація", Icon: Activity },
   { href: "/admin/autoposting", label: "Автопублікації", Icon: Megaphone },
+  { href: "/admin/autoposting/integrations", label: "Месенджери", Icon: MessageCircle },
   { href: "/admin/google", label: "Google", Icon: BarChart3 },
   { href: "/admin/leads", label: "Заявки", Icon: Users },
 ] as const;
@@ -23,7 +24,10 @@ export function AdminShell({ children, title, description }: { children: React.R
         </div>
       </header>
       <main className="shell py-10">
-        <div><p className="text-xs font-black uppercase tracking-[.14em] text-[#ff7b1a]">Панель керування</p><h1 className="mt-2 text-4xl font-bold tracking-[-.05em] sm:text-5xl">{title}</h1>{description && <p className="mt-3 text-sm text-white/45">{description}</p>}</div>
+        <div>
+          {title !== "Dashboard" && <Link href="/admin" className="premium-focus mb-5 inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm font-semibold text-white/60 no-underline transition hover:border-white/20 hover:bg-white/[.06] hover:text-white"><ArrowLeft size={16} />Назад до Dashboard</Link>}
+          <p className="text-xs font-black uppercase tracking-[.14em] text-[#ff7b1a]">Панель керування</p><h1 className="mt-2 text-4xl font-bold tracking-[-.05em] sm:text-5xl">{title}</h1>{description && <p className="mt-3 text-sm text-white/45">{description}</p>}
+        </div>
         <div className="mt-8">{children}</div>
       </main>
     </div>
