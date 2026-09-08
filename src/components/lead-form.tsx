@@ -21,9 +21,10 @@ export function LeadForm({ vehicle, compact = false }: { vehicle?: LeadVehicleCo
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const formElement = event.currentTarget;
     setState("sending");
     setMessage("");
-    const form = new FormData(event.currentTarget);
+    const form = new FormData(formElement);
     const query = new URLSearchParams(window.location.search);
     const utmSource = query.get("utm_source") ?? "";
     const referrerHost = (() => { try { return document.referrer ? new URL(document.referrer).hostname.toLowerCase() : ""; } catch { return ""; } })();
@@ -58,7 +59,7 @@ export function LeadForm({ vehicle, compact = false }: { vehicle?: LeadVehicleCo
       if (!response.ok || !data.ok) throw new Error(data.message ?? "Не вдалося надіслати заявку");
       trackLeadConversion({ form_name: vehicle ? "vehicle_quote" : "general_request", vehicle_id: vehicle?.vehicleId ?? "", source_channel: sourceChannel, transaction_id: data.conversionId ?? "" });
       setState("success");
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (error) {
       setState("error");
       setMessage(error instanceof Error ? error.message : "Сталася помилка. Спробуйте ще раз.");
