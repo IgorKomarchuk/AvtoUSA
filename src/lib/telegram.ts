@@ -22,7 +22,8 @@ export async function sendLeadToTelegram(lead: LeadInput) {
     `Ціна: ${escapeHtml(lead.price)}`,
     `Сторінка: ${escapeHtml(lead.vehicleUrl)}`,
     `Канал: ${escapeHtml(lead.sourceChannel)}`,
-    `UTM: ${escapeHtml([lead.utmSource, lead.utmMedium, lead.utmCampaign].filter(Boolean).join(" / "))}`,
+    `UTM: ${escapeHtml([lead.utmSource, lead.utmMedium, lead.utmCampaign, lead.utmTerm].filter(Boolean).join(" / "))}`,
+    `Google Click ID: ${escapeHtml(lead.gclid ?? lead.gbraid ?? lead.wbraid)}`,
   ].join("\n");
 
   const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {

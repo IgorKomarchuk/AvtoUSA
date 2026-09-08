@@ -45,6 +45,10 @@ export function LeadForm({ vehicle, compact = false }: { vehicle?: LeadVehicleCo
       utmMedium: query.get("utm_medium") ?? "",
       utmCampaign: query.get("utm_campaign") ?? "",
       utmContent: query.get("utm_content") ?? "",
+      utmTerm: query.get("utm_term") ?? "",
+      gclid: query.get("gclid") ?? "",
+      gbraid: query.get("gbraid") ?? "",
+      wbraid: query.get("wbraid") ?? "",
     };
     try {
       const response = await fetch("/api/leads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });

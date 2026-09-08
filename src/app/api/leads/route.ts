@@ -33,6 +33,10 @@ export async function POST(request: NextRequest) {
           utmMedium: parsed.data.utmMedium || null,
           utmCampaign: parsed.data.utmCampaign || null,
           utmContent: parsed.data.utmContent || null,
+          utmTerm: parsed.data.utmTerm || null,
+          gclid: parsed.data.gclid || null,
+          gbraid: parsed.data.gbraid || null,
+          wbraid: parsed.data.wbraid || null,
         },
       });
       conversionId = lead.id;

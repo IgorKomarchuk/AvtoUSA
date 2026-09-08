@@ -17,6 +17,10 @@ export const leadSchema = z.object({
   utmMedium: z.string().trim().max(100).optional().or(z.literal("")),
   utmCampaign: z.string().trim().max(160).optional().or(z.literal("")),
   utmContent: z.string().trim().max(160).optional().or(z.literal("")),
+  utmTerm: z.string().trim().max(160).optional().or(z.literal("")),
+  gclid: z.string().trim().max(255).optional().or(z.literal("")),
+  gbraid: z.string().trim().max(255).optional().or(z.literal("")),
+  wbraid: z.string().trim().max(255).optional().or(z.literal("")),
   website: z.string().max(0).optional(),
 });
 
