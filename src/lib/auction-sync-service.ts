@@ -3,6 +3,7 @@ import "server-only";
 import { ApibaraClient, ApibaraError } from "./apibara";
 import { getActiveApibaraKey } from "./apibara-credentials";
 import { getPrisma } from "./prisma";
+import { auctionTargets, matchesAuctionSelection } from "./auction-selection";
 import type { AuctionPlatform, SyncResult, VehicleData } from "./types";
 
 function serializable(value: unknown) {
@@ -23,7 +24,7 @@ export class AuctionSyncService {
   }
 
   async syncIAAI(): Promise<SyncResult> {
-    return this.syncProvider("iaai");
+    return this.skipped("iaai", "Поточний профіль добору: тільки Copart");
   }
 
   async syncSingleVehicle(identifier: string): Promise<SyncResult> {
@@ -82,7 +83,10 @@ export class AuctionSyncService {
     if (!prisma) return this.skipped(provider, "DATABASE_URL не налаштовано; синхронізація не може бути збережена");
     const log = await prisma.auctionSyncLog.create({ data: { provider, endpoint: "/vehicles" } });
     try {
-      const response = await client.vehicles({ platform: provider === "all" ? undefined : provider });
+      const position = await prisma.siteSetting.findUnique({ where: { key: "auction_selection_cursor" } });
+      const index = typeof position?.value === "number" && Number.isInteger(position.value) && position.value >= 0 ? position.value % auctionTargets.length : 0;
+      const target = auctionTargets[index];
+      const response = await client.vehicles({ platform: "copart", target });
       let createdRecords = 0;
       let updatedRecords = 0;
       for (const vehicle of response.vehicles) {
@@ -94,6 +98,11 @@ export class AuctionSyncService {
         if (existing) updatedRecords += 1;
         else createdRecords += 1;
       }
+      // Keep saved lots/links, but remove non-matching inventory from public selection.
+      const active = await prisma.vehicle.findMany({ where: { isActive: true, isDemo: false }, select: { id: true, platform: true, year: true, make: true, model: true, odometerMiles: true, primaryDamage: true } });
+      const excluded = active.filter((vehicle) => !matchesAuctionSelection(vehicle)).map((vehicle) => vehicle.id);
+      if (excluded.length) await prisma.vehicle.updateMany({ where: { id: { in: excluded } }, data: { isActive: false } });
+      await prisma.siteSetting.upsert({ where: { key: "auction_selection_cursor" }, create: { key: "auction_selection_cursor", value: (index + 1) % auctionTargets.length }, update: { value: (index + 1) % auctionTargets.length } });
       await prisma.auctionSyncLog.update({
         where: { id: log.id },
         data: {
@@ -159,7 +168,7 @@ export class AuctionSyncService {
       videoUrl: vehicle.videoUrl,
       media360Url: vehicle.media360Url,
       isDemo: false,
-      isActive: true,
+      isActive: matchesAuctionSelection(vehicle),
       rawData: serializable(vehicle.rawData),
       lastSyncedAt: vehicle.lastSyncedAt,
     };

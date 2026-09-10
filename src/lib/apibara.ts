@@ -191,7 +191,7 @@ export class ApibaraClient {
     return payload as T;
   }
 
-  async vehicles(options: { platform?: "copart" | "iaai"; identifier?: string } = {}) {
+  async vehicles(options: { platform?: "copart" | "iaai"; identifier?: string; target?: readonly [string, string] } = {}) {
     const updatedWithinMinutes = Math.min(525_600, Math.max(1, Number(process.env.AUCTION_SYNC_UPDATED_WITHIN_MINUTES) || 720));
     const params = new URLSearchParams({
       lot_status: "All",
@@ -202,6 +202,19 @@ export class ApibaraClient {
     });
     if (options.platform) params.set("platform", options.platform);
     if (options.identifier) params.set("s", options.identifier);
+    if (options.target) {
+      params.set("platform", "copart");
+      params.set("make", options.target[0]);
+      // BMW uses multiple model names (328i, 330i, etc.); filter the family locally.
+      if (!(options.target[0] === "BMW" && options.target[1] !== "X5")) params.set("model", options.target[1]);
+      params.set("year_from", "2014");
+      params.set("year_to", "2025");
+      params.set("odometer_from", "1000");
+      params.set("odometer_to", "80000");
+      params.set("units", "mi");
+      // A rotating target is not an incremental feed; don't omit older eligible lots.
+      params.delete("updated_within_minutes");
+    }
     const response = await this.request<{ ok: boolean; data?: unknown[]; meta?: UnknownRecord }>("/vehicles", params);
     return { vehicles: (response.data ?? []).map(mapApibaraVehicle), meta: response.meta ?? {} };
   }
