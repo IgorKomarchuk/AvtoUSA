@@ -17,7 +17,8 @@ describe("social publishers", () => {
     vi.stubGlobal("fetch", fetchMock);
     const { publishToSocialChannel } = await import("./social-publishers");
     const result = await publishToSocialChannel("TELEGRAM", mockVehicles[0], "Test post");
-    const request = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)) as { reply_markup: { inline_keyboard: Array<Array<{ url: string }>> } };
+    const request = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)) as { reply_markup: { inline_keyboard: Array<Array<{ text: string; url: string }>> } };
+    expect(request.reply_markup.inline_keyboard[0][0].text).toBe("Залишити заявку");
     expect(request.reply_markup.inline_keyboard[0][0].url).toContain("https://example.com/cars/");
     expect(request.reply_markup.inline_keyboard[0][0].url).toContain("utm_source=telegram");
     expect(request.reply_markup.inline_keyboard[0][0].url).toContain("request=1");

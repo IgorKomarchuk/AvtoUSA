@@ -10,7 +10,7 @@ export const DEFAULT_CHANNEL_CONFIG: Record<SocialChannel, { dailyLimit: number;
 };
 
 export const DEFAULT_TEMPLATES: Record<SocialChannel, string> = {
-  TELEGRAM: "🚘 {{year}} {{make}} {{model}} {{trim}}\n\n🏷 Аукціон: {{auction}}\n💰 Ставка: {{currentBid}}\n🛣 Пробіг: {{odometer}}\n🔧 Пошкодження: {{primaryDamage}}\n📅 Дата торгів: {{auctionDate}}\n\n👉 Подивитися авто:\n{{vehicleUrl}}",
+  TELEGRAM: "🚘 {{year}} {{make}} {{model}} {{trim}}\n\n🏷 Аукціон: {{auction}}\n💰 Ставка: {{currentBid}}\n🛣 Пробіг: {{odometer}}\n🔧 Пошкодження: {{primaryDamage}}\n📅 Дата торгів: {{auctionDate}}\n\n👉 Залишити заявку:\n{{vehicleUrl}}",
   FACEBOOK: "🚘 {{year}} {{make}} {{model}} {{trim}}\n\nАукціон: {{auction}}\nСтавка: {{currentBid}}\nПробіг: {{odometer}}\nПошкодження: {{primaryDamage}}\n\nДеталі, фото та розрахунок вартості: {{vehicleUrl}}",
   INSTAGRAM: "🚘 {{year}} {{make}} {{model}} {{trim}}\n\nАукціон: {{auction}}\nЦіна: {{currentBid}}\nПробіг: {{odometer}}\nПошкодження: {{primaryDamage}}\n\nПовна картка авто — за посиланням у профілі.\n{{vehicleUrl}}",
   VIBER: "🚘 {{year}} {{make}} {{model}} {{trim}}\nАукціон: {{auction}}\nЦіна: {{currentBid}}\nПробіг: {{odometer}}\nПошкодження: {{primaryDamage}}",

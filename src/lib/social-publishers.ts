@@ -49,7 +49,7 @@ async function telegram(vehicle: VehicleData, text: string): Promise<Publication
   const response = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, photo, caption: text.slice(0, 1024), reply_markup: { inline_keyboard: [[{ text: "Подивитися авто", url }]] } }),
+    body: JSON.stringify({ chat_id: chatId, photo, caption: text.slice(0, 1024), reply_markup: { inline_keyboard: [[{ text: "Залишити заявку", url }]] } }),
     signal: AbortSignal.timeout(20_000),
   });
   const payload = await jsonResponse(response);
@@ -106,7 +106,7 @@ async function viber(vehicle: VehicleData, text: string): Promise<PublicationRec
   const response = await fetch("https://chatapi.viber.com/pa/broadcast_message", {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Viber-Auth-Token": token },
-    body: JSON.stringify({ broadcast_list: recipients, min_api_version: 7, sender: { name: credentials.viberSenderName || "BRILLIANTCARS" }, type: "rich_media", alt_text: text, rich_media: { Type: "rich_media", ButtonsGroupColumns: 6, ButtonsGroupRows: 7, BgColor: "#0b0c0b", Buttons: [{ Columns: 6, Rows: 4, ActionType: "open-url", ActionBody: url, Image: vehicle.photos[0]?.url }, { Columns: 6, Rows: 2, ActionType: "open-url", ActionBody: url, Text: `<font color=#ffffff>${text.replace(/\n/g, "<br>").slice(0, 700)}</font>`, TextSize: "small", TextVAlign: "middle", TextHAlign: "left" }, { Columns: 6, Rows: 1, ActionType: "open-url", ActionBody: url, BgColor: "#ff6b00", Text: "<font color=#ffffff><b>Подивитися авто</b></font>" }] } }),
+    body: JSON.stringify({ broadcast_list: recipients, min_api_version: 7, sender: { name: credentials.viberSenderName || "BRILLIANTCARS" }, type: "rich_media", alt_text: text, rich_media: { Type: "rich_media", ButtonsGroupColumns: 6, ButtonsGroupRows: 7, BgColor: "#0b0c0b", Buttons: [{ Columns: 6, Rows: 4, ActionType: "open-url", ActionBody: url, Image: vehicle.photos[0]?.url }, { Columns: 6, Rows: 2, ActionType: "open-url", ActionBody: url, Text: `<font color=#ffffff>${text.replace(/\n/g, "<br>").slice(0, 700)}</font>`, TextSize: "small", TextVAlign: "middle", TextHAlign: "left" }, { Columns: 6, Rows: 1, ActionType: "open-url", ActionBody: url, BgColor: "#ff6b00", Text: "<font color=#ffffff><b>Залишити заявку</b></font>" }] } }),
     signal: AbortSignal.timeout(25_000),
   });
   const payload = await jsonResponse(response);
