@@ -1,7 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { buttonStyles } from "./ui/button";
+import { LeadDialogButton } from "./lead-dialog-button";
+import Link from "next/link";
 
 const benefits = ["Перевірка VIN", "Прозора вартість", "Доставка під ключ", "Повний супровід"];
 
@@ -17,7 +18,7 @@ export function Hero() {
           <h1 className="mt-5 max-w-3xl text-[clamp(2.85rem,13vw,4.8rem)] font-[780] leading-[.9] tracking-[-.06em] sm:mt-6 sm:text-[clamp(4.6rem,7.5vw,7.4rem)]">Авто зі США <span className="text-[#ff6b00]">під ключ</span></h1>
           <p className="mt-7 w-full max-w-xl text-base leading-7 text-white/65 sm:text-lg">Підберемо автомобіль на Copart та IAAI, перевіримо історію, викупимо, доставимо й розмитнимо в Україні.</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="#request" className={buttonStyles("primary")}>Підібрати авто <ArrowUpRight size={17} /></Link>
+            <LeadDialogButton className={buttonStyles("primary")}>Підібрати авто <ArrowUpRight size={17} /></LeadDialogButton>
             <Link href="#calculator" className={buttonStyles("secondary")}>Розрахувати вартість</Link>
           </div>
           <div className="mt-10 grid max-w-2xl grid-cols-2 gap-x-5 gap-y-3 sm:grid-cols-4">

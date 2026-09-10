@@ -12,6 +12,7 @@ export function vehicleSocialUrl(vehicle: Pick<VehicleData, "slug">, channel: So
   url.searchParams.set("utm_source", utm.source);
   url.searchParams.set("utm_medium", utm.medium);
   url.searchParams.set("utm_campaign", utm.campaign);
+  url.searchParams.set("request", "1");
   return url.toString();
 }
 

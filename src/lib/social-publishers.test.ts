@@ -20,6 +20,7 @@ describe("social publishers", () => {
     const request = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)) as { reply_markup: { inline_keyboard: Array<Array<{ url: string }>> } };
     expect(request.reply_markup.inline_keyboard[0][0].url).toContain("https://example.com/cars/");
     expect(request.reply_markup.inline_keyboard[0][0].url).toContain("utm_source=telegram");
+    expect(request.reply_markup.inline_keyboard[0][0].url).toContain("request=1");
     expect(result.externalPostUrl).toBe("https://t.me/drive_state_test/42");
   });
 

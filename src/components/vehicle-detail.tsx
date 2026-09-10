@@ -12,6 +12,7 @@ import { LeadForm } from "./lead-form";
 import { DemoNotice } from "./demo-notice";
 import { AuctionSchedule } from "./auction-schedule";
 import { VehicleAnalytics } from "./vehicle-analytics";
+import { LeadDialogButton } from "./lead-dialog-button";
 
 export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
   const specs = [
@@ -39,7 +40,7 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
               <div className="mt-7 border-y border-white/10 py-6"><p className="text-xs text-white/45">{vehicle.buyNowPrice ? "Купити зараз" : "Поточна ставка"}</p><p className="mt-1 text-5xl font-black tracking-[-.065em]">{formatUsd(displayPrice)}</p>{vehicle.buyNowPrice && vehicle.currentBid && <p className="mt-2 text-sm text-white/45">Поточна ставка: {formatUsd(vehicle.currentBid)}</p>}</div>
               <div className="mt-6"><AuctionSchedule auctionDate={vehicle.auctionDate} /></div>
               <div className="mt-4 grid gap-3 text-sm text-white/60"><p className="flex items-center gap-2"><MapPin size={16} className="text-[#ff7b1a]" />{[vehicle.state, vehicle.city].filter(Boolean).join(" · ") || "Уточнюється"}</p><p className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#ff7b1a]" />{vehicle.auctionStatus ?? "Статус уточнюється"}</p></div>
-              <div className="mt-7 grid gap-3"><a href="#quote" className={buttonStyles("primary")}>Розрахувати вартість в Україні</a><a href="#lead" className={buttonStyles("secondary")}>Замовити автомобіль</a>{vehicle.sourceUrl && !vehicle.isDemo && <a href={vehicle.sourceUrl} target="_blank" rel="nofollow noreferrer" className={`${buttonStyles("ghost")} text-xs`}>Джерело лота <ExternalLink size={14} /></a>}</div>
+              <div className="mt-7 grid gap-3"><a href="#quote" className={buttonStyles("primary")}>Розрахувати вартість в Україні</a><LeadDialogButton autoOpenFromQuery className={buttonStyles("secondary")} vehicle={{vehicleId:vehicle.id,vin:vehicle.vin,lotNumber:vehicle.lotNumber,vehicleTitle:vehicle.title,price:formatUsd(displayPrice),vehicleUrl:`/cars/${vehicle.slug}`,source:"vehicle_social",image:vehicle.photos[0]?.url,platform:vehicle.platform}}>Замовити автомобіль</LeadDialogButton>{vehicle.sourceUrl && !vehicle.isDemo && <a href={vehicle.sourceUrl} target="_blank" rel="nofollow noreferrer" className={`${buttonStyles("ghost")} text-xs`}>Джерело лота <ExternalLink size={14} /></a>}</div>
             </div>
           </aside>
         </section>

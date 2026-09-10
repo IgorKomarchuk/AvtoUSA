@@ -18,6 +18,7 @@ describe("social templates", () => {
     expect(url).toContain("utm_source=viber");
     expect(url).toContain("utm_medium=messenger");
     expect(url).toContain("utm_campaign=auto_lots");
+    expect(url).toContain("request=1");
   });
 
   it("rejects unknown template variables", () => {
