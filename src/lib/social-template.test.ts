@@ -19,6 +19,7 @@ describe("social templates", () => {
     expect(url).toContain("utm_medium=messenger");
     expect(url).toContain("utm_campaign=auto_lots");
     expect(url).toContain("request=1");
+    expect(new URL(url).pathname).toBe(`/order/${mockVehicles[0].slug}`);
   });
 
   it("rejects unknown template variables", () => {

@@ -7,7 +7,7 @@ import type { VehicleData } from "./types";
 const variables = ["year", "make", "model", "trim", "auction", "currentBid", "buyNowPrice", "odometer", "primaryDamage", "auctionDate", "vehicleUrl"] as const;
 
 export function vehicleSocialUrl(vehicle: Pick<VehicleData, "slug">, channel: SocialChannel) {
-  const url = new URL(absoluteUrl(`/cars/${vehicle.slug}`));
+  const url = new URL(absoluteUrl(`/order/${vehicle.slug}`));
   const utm = UTM_BY_CHANNEL[channel];
   url.searchParams.set("utm_source", utm.source);
   url.searchParams.set("utm_medium", utm.medium);

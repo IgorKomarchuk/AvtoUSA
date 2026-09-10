@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { CatalogPage, catalogMetadata, type CatalogSearchParams } from "@/components/catalog-page";
 import { VehicleDetail } from "@/components/vehicle-detail";
 import { getVehicleBySlug, resolveCatalogTaxonomy } from "@/lib/vehicle-repository";
@@ -32,6 +32,15 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
 export default async function VehicleOrCategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const query = await searchParams;
+  if (query.request === "1") {
+    const forwarded = new URLSearchParams();
+    for (const [key, value] of Object.entries(query)) {
+      if (typeof value === "string") forwarded.set(key, value);
+      else if (Array.isArray(value)) value.forEach((item) => forwarded.append(key, item));
+    }
+    redirect(`/order/${encodeURIComponent(slug)}?${forwarded}`);
+  }
   const vehicle = await getVehicleBySlug(slug);
   if (vehicle) {
     const structured = vehicle.isDemo ? null : {
