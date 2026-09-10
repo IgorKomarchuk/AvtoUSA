@@ -17,7 +17,8 @@ const saveSchema = z.object({
 });
 const testSchema = z.object({ action: z.literal("test"), channel: z.enum(["TELEGRAM", "FACEBOOK", "INSTAGRAM", "VIBER"]) });
 const testPublicationSchema = z.object({ action: z.literal("test_publication"), channel: z.enum(["TELEGRAM", "FACEBOOK", "INSTAGRAM", "VIBER"]) });
-const schema = z.discriminatedUnion("action", [saveSchema, testSchema, testPublicationSchema]);
+const telegramCopySchema = z.object({ action: z.literal("telegram_copy_destination"), from: z.enum(["autoposts", "leads"]) });
+const schema = z.discriminatedUnion("action", [saveSchema, testSchema, testPublicationSchema, telegramCopySchema]);
 
 async function readJson(response: Response) {
   return response.json().catch(() => null) as Promise<Record<string, unknown> | null>;
@@ -89,6 +90,13 @@ export async function POST(request: Request) {
       await saveSocialCredentials(values);
       return NextResponse.json({ ok: true, message: "Credentials зашифровано та збережено" });
     }
+    if (parsed.data.action === "telegram_copy_destination") {
+      const credentials = await getSocialCredentials();
+      const source = parsed.data.from === "leads" ? credentials.telegramLeadChatId : credentials.telegramChannelId;
+      if (!source) throw new Error(parsed.data.from === "leads" ? "Спочатку вкажіть групу для заявок" : "Спочатку вкажіть групу для автопостів");
+      await saveSocialCredentials(parsed.data.from === "leads" ? { telegramChannelId: source } : { telegramLeadChatId: source });
+      return NextResponse.json({ ok: true, message: "Одна Telegram-група налаштована для автопостів і заявок" });
+    }
     if (parsed.data.action === "test") {
       const message = await testConnection(parsed.data.channel);
       await saveSocialIntegrationCheck(parsed.data.channel, { ok: true, kind: "connection", message, checkedAt: new Date().toISOString() });
@@ -99,7 +107,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, message: result.message, externalPostUrl: result.receipt.externalPostUrl });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Помилка інтеграції";
-    if (parsed.data.action !== "save") {
+    if (parsed.data.action === "test" || parsed.data.action === "test_publication") {
       await saveSocialIntegrationCheck(parsed.data.channel, { ok: false, kind: parsed.data.action === "test" ? "connection" : "publication", message, checkedAt: new Date().toISOString() }).catch(() => undefined);
     }
     return NextResponse.json({ ok: false, message }, { status: 400 });
