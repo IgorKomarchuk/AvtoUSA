@@ -13,7 +13,7 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
-    "sync:auctions": "tsx scripts/sync-auctions.ts",
+    "sync:auctions": "node --conditions=react-server --import ./scripts/tsx-runtime-shim.mjs --import tsx scripts/sync-auctions.ts",
     "worker:autopost": "node --conditions=react-server --import ./scripts/tsx-runtime-shim.mjs --import tsx scripts/autopost-worker.ts"
   },
   "dependencies": {
