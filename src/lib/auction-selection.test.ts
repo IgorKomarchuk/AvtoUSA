@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import { auctionTargets, matchesAuctionSelection } from "./auction-selection";
 const car = { platform: "COPART", year: 2020, make: "Toyota", model: "RAV4", odometerMiles: 40000, primaryDamage: "Front end" };
 describe("auction selection", () => {
+  it("rotates through different makes before requesting secondary models", () => {
+    expect(new Set(auctionTargets.slice(0, 12).map(([make]) => make)).size).toBe(12);
+  });
   it("accepts configured families", () => {
     for (const [make, model] of auctionTargets) expect(matchesAuctionSelection({ ...car, make, model: make === "BMW" && model !== "X5" ? `${model} Series` : model })).toBe(true);
   });

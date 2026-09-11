@@ -1,11 +1,14 @@
 /** Business selection shared by imports and regression tests. No provider calls here. */
 export const auctionTargets = [
-  ["Volkswagen", "Jetta"], ["Volkswagen", "Passat"], ["Volkswagen", "Tiguan"],
-  ["Hyundai", "Elantra"], ["Hyundai", "Tucson"], ["Ford", "Fusion"], ["Ford", "Escape"],
-  ["Mazda", "3"], ["Mazda", "CX-5"], ["Nissan", "Rogue"], ["Kia", "Sportage"], ["Kia", "Forte"],
+  // Keep the first pass diverse. With one request per FREE-mode sync, grouping
+  // models by make would fill the catalog with one brand for several days.
+  ["Volkswagen", "Jetta"], ["Hyundai", "Elantra"], ["Ford", "Fusion"],
+  ["Mazda", "3"], ["Nissan", "Rogue"], ["Kia", "Sportage"],
   ["Jeep", "Cherokee"], ["Toyota", "RAV4"], ["Honda", "CR-V"],
-  ["Subaru", "Forester"], ["Subaru", "Outback"], ["Tesla", "Model 3"],
-  ["BMW", "X5"], ["BMW", "3"], ["BMW", "5"],
+  ["Subaru", "Forester"], ["Tesla", "Model 3"], ["BMW", "X5"],
+  ["Volkswagen", "Passat"], ["Hyundai", "Tucson"], ["Ford", "Escape"],
+  ["Mazda", "CX-5"], ["Kia", "Forte"], ["Subaru", "Outback"],
+  ["BMW", "3"], ["BMW", "5"], ["Volkswagen", "Tiguan"],
 ] as const;
 
 type SelectionVehicle = {

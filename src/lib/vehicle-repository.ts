@@ -4,6 +4,7 @@ import { mockVehicles } from "./mock-data";
 import { getPrisma } from "./prisma";
 import type { VehicleData, VehicleFilters, VehiclePageResult } from "./types";
 import { catalogSegment } from "./seo";
+import { interleaveVehiclesByMake } from "./vehicle-ordering";
 
 function filterMockVehicles(filters: VehicleFilters) {
   if (process.env.MOCK_AUCTION_MODE === "false") return [];
@@ -76,17 +77,26 @@ export async function getVehicles(filters: VehicleFilters = {}): Promise<Vehicle
       ...(filters.buyNow ? { buyNowPrice: { not: null } } : {}),
       ...(filters.runAndDrive ? { runCondition: "RUNS AND DRIVES" } : {}),
     };
-    const [vehicles, total, latest] = await Promise.all([
+    const [orderedVehicles, latest] = await Promise.all([
       prisma.vehicle.findMany({
         where,
-        include: { photos: { orderBy: { position: "asc" } } },
+        select: { id: true, make: true },
         orderBy: [{ auctionDate: "asc" }, { updatedAt: "desc" }],
-        skip: (page - 1) * pageSize,
-        take: pageSize,
       }),
-      prisma.vehicle.count({ where }),
       prisma.vehicle.findFirst({ where: { isActive: true }, orderBy: { lastSyncedAt: "desc" }, select: { lastSyncedAt: true } }),
     ]);
+    const total = orderedVehicles.length;
+    const pageIds = interleaveVehiclesByMake(orderedVehicles)
+      .slice((page - 1) * pageSize, page * pageSize)
+      .map((vehicle) => vehicle.id);
+    const pageVehicles = pageIds.length
+      ? await prisma.vehicle.findMany({
+          where: { ...where, id: { in: pageIds } },
+          include: { photos: { orderBy: { position: "asc" } } },
+        })
+      : [];
+    const vehiclesById = new Map(pageVehicles.map((vehicle) => [vehicle.id, vehicle]));
+    const vehicles = pageIds.map((id) => vehiclesById.get(id)).filter((vehicle) => vehicle != null);
     if (!vehicles.length && process.env.MOCK_AUCTION_MODE !== "false") return getVehiclesWithoutDatabase(filters);
     return { vehicles: vehicles as VehicleData[], total, page, pageSize, isDemo: vehicles.length > 0 && vehicles.every((item) => item.isDemo), lastSyncedAt: latest?.lastSyncedAt ?? null };
   } catch {
