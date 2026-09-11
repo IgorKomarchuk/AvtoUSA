@@ -85,6 +85,62 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .input::placeholder { color: #777b74; }
 .input option { background: #111311; }
 
+/* The administration area intentionally uses a high-contrast light theme,
+   isolated from the dark public storefront. */
+.admin-theme {
+  color-scheme: light;
+  color: #172033;
+}
+.admin-theme .glass {
+  background: #fff;
+  border-color: rgba(15, 23, 42, .1);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, .1);
+  backdrop-filter: none;
+}
+.admin-theme .input {
+  border-color: rgba(15, 23, 42, .14);
+  background: #fff;
+  color: #172033;
+}
+.admin-theme .input:hover { border-color: rgba(15, 23, 42, .28); }
+.admin-theme .input:focus { border-color: rgba(255,107,0,.82); background: #fff; }
+.admin-theme .input::placeholder { color: #7c8798; }
+.admin-theme .input option { background: #fff; color: #172033; }
+.admin-theme [class~="border-white/10"] { border-color: rgba(15, 23, 42, .1) !important; }
+.admin-theme [class~="border-white/15"] { border-color: rgba(15, 23, 42, .15) !important; }
+.admin-theme [class~="border-white/20"] { border-color: rgba(15, 23, 42, .2) !important; }
+.admin-theme [class~="divide-white/[.06]"] > :not(:last-child) { border-color: rgba(15, 23, 42, .08) !important; }
+.admin-theme [class~="bg-white/[.035]"],
+.admin-theme [class~="bg-white/[.04]"] { background: #fff !important; }
+.admin-theme [class~="bg-white/5"],
+.admin-theme [class~="bg-white/10"],
+.admin-theme [class~="bg-black/15"],
+.admin-theme [class~="bg-black/20"],
+.admin-theme [class~="bg-black/25"],
+.admin-theme [class~="bg-black/30"] { background: #f6f8fa !important; }
+.admin-theme [class~="bg-[#111]/95"] { background: rgba(255,255,255,.96) !important; }
+.admin-theme [class~="text-white/30"],
+.admin-theme [class~="text-white/35"],
+.admin-theme [class~="text-white/40"],
+.admin-theme [class~="text-white/45"] { color: #64748b !important; }
+.admin-theme [class~="text-white/50"],
+.admin-theme [class~="text-white/55"],
+.admin-theme [class~="text-white/60"] { color: #475569 !important; }
+.admin-theme [class~="text-white/65"],
+.admin-theme [class~="text-white/70"] { color: #334155 !important; }
+.admin-theme [class~="hover:bg-white/[.06]"]:hover,
+.admin-theme [class~="hover:bg-white/[.07]"]:hover { background: #f1f5f9 !important; }
+.admin-theme [class~="hover:text-white"]:hover { color: #0f172a !important; }
+.admin-theme [class~="text-emerald-200"],
+.admin-theme [class~="text-emerald-300"] { color: #047857 !important; }
+.admin-theme [class~="text-amber-100"],
+.admin-theme [class~="text-amber-200"],
+.admin-theme [class~="text-amber-300"] { color: #92400e !important; }
+.admin-theme [class~="text-rose-200"],
+.admin-theme [class~="text-rose-300"] { color: #be123c !important; }
+.admin-theme table tbody tr { transition: background-color .16s ease; }
+.admin-theme table tbody tr:hover { background: #f8fafc; }
+
 .skeleton { position: relative; overflow: hidden; background: #151715; }
 .skeleton::after {
   content: "";
