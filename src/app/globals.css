@@ -215,17 +215,23 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .shell { width: min(calc(100% - 24px), 1240px); }
   .section-title { font-size: clamp(2.2rem, 12vw, 3.5rem); }
   .advantage-row {
-    grid-template-columns: 7rem minmax(0, 1fr);
-    column-gap: 1rem;
-    min-height: 10rem;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: .65rem;
+    min-height: 0;
+    padding: 1.5rem 0 1.75rem;
+    align-items: start;
   }
   .advantage-number {
-    align-self: start;
-    padding-top: 1.8rem;
-    font-size: 4.25rem;
-    letter-spacing: -.025em;
+    align-self: auto;
+    padding-top: 0;
+    font-size: 3.75rem;
+    letter-spacing: -.035em;
+    line-height: .9;
   }
-  .advantage-copy { min-width: 0; }
+  .advantage-copy {
+    min-width: 0;
+    padding-block: 0;
+  }
   .hero-veil {
     background:
       linear-gradient(90deg, rgba(47, 46, 41, .68) 0%, rgba(42, 41, 36, .5) 58%, rgba(15, 16, 14, .2) 100%),
