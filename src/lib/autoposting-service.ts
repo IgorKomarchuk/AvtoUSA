@@ -11,6 +11,26 @@ import { publishToSocialChannel, SocialPublishError } from "./social-publishers"
 
 type VehicleWithPhotos = Prisma.VehicleGetPayload<{ include: { photos: true } }>;
 
+export function diversifyCandidatesByMake<T extends { vehicle: { make: string | null } }>(candidates: T[]) {
+  const groups = new Map<string, T[]>();
+  for (const candidate of candidates) {
+    const make = (candidate.vehicle.make ?? "").trim().toUpperCase() || "UNKNOWN";
+    const group = groups.get(make) ?? [];
+    group.push(candidate);
+    groups.set(make, group);
+  }
+
+  const diversified: T[] = [];
+  while (groups.size) {
+    for (const [make, group] of groups) {
+      const candidate = group.shift();
+      if (candidate) diversified.push(candidate);
+      if (!group.length) groups.delete(make);
+    }
+  }
+  return diversified;
+}
+
 function jsonValue<T>(value: unknown, fallback: T): T {
   return value && typeof value === "object" ? value as T : fallback;
 }
@@ -108,7 +128,11 @@ export class AutopostingService {
       const today = localDayRange();
       const used = await prisma.socialPublication.count({ where: { channel: setting.channel, createdAt: { gte: today.start, lt: today.end }, status: { not: "CANCELLED" } } });
       const available = Math.max(0, setting.dailyLimit - used);
-      const eligible = candidates.filter((item) => mode === "auto" || item.vehicle.publicationDecision === "APPROVED").filter((item) => !item.publishedChannels.includes(setting.channel)).slice(0, available);
+      const eligible = diversifyCandidatesByMake(
+        candidates
+          .filter((item) => mode === "auto" || item.vehicle.publicationDecision === "APPROVED")
+          .filter((item) => !item.publishedChannels.includes(setting.channel)),
+      ).slice(0, available);
       const windows = jsonValue<string[]>(setting.timeWindows, DEFAULT_CHANNEL_CONFIG[setting.channel].timeWindows);
       for (const [index, item] of eligible.entries()) {
         const scheduledAt = nextSchedule(windows, used + index);
