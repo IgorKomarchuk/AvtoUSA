@@ -201,7 +201,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
   color: transparent;
   font-size: clamp(4.5rem, 8vw, 7.5rem);
   font-weight: 900;
-  letter-spacing: -.09em;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.045em;
+  line-height: 1;
+  white-space: nowrap;
   -webkit-text-stroke: 1px rgba(255, 107, 0, .72);
   text-shadow: 0 0 40px rgba(255, 107, 0, .08);
 }
@@ -210,7 +213,18 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media (max-width: 640px) {
   .shell { width: min(calc(100% - 24px), 1240px); }
   .section-title { font-size: clamp(2.2rem, 12vw, 3.5rem); }
-  .advantage-row { grid-template-columns: 5rem 1fr; min-height: 10rem; }
+  .advantage-row {
+    grid-template-columns: 6.35rem minmax(0, 1fr);
+    column-gap: .75rem;
+    min-height: 10rem;
+  }
+  .advantage-number {
+    align-self: start;
+    padding-top: 1.8rem;
+    font-size: 4.25rem;
+    letter-spacing: -.025em;
+  }
+  .advantage-copy { min-width: 0; }
   .hero-veil {
     background:
       linear-gradient(90deg, rgba(47, 46, 41, .68) 0%, rgba(42, 41, 36, .5) 58%, rgba(15, 16, 14, .2) 100%),
