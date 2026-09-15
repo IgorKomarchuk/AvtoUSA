@@ -46,7 +46,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         "@id": absoluteUrl("/#organization"),
         name: SITE_NAME,
         url: absoluteUrl("/"),
-        logo: absoluteUrl("/icon.svg"),
+        logo: absoluteUrl("/icon.png"),
         email: contacts.email,
         telephone: contacts.phoneHref,
         contactPoint: { "@type": "ContactPoint", telephone: contacts.phoneHref, contactType: "customer service", areaServed: "UA", availableLanguage: ["uk", "ru"] },
