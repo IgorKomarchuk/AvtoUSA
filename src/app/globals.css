@@ -222,12 +222,15 @@ button, a { -webkit-tap-highlight-color: transparent; }
     align-items: start;
   }
   .advantage-number {
+    display: flex;
+    gap: .08em;
     align-self: auto;
     padding-top: 0;
     font-size: 3.75rem;
-    letter-spacing: -.035em;
+    letter-spacing: 0;
     line-height: .9;
   }
+  .advantage-number-digit { display: block; }
   .advantage-copy {
     min-width: 0;
     padding-block: 0;

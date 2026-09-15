@@ -39,7 +39,9 @@ export function AdvantagesShowcase() {
     </div>
     <div className="mt-10 grid gap-x-8 gap-y-2 lg:grid-cols-2">
       {advantages.map(([number, title, text], index) => <article key={number} style={{ transitionDelay: visible ? `${index * 120}ms` : "0ms" }} className={`advantage-row group ${visible ? "is-visible" : ""} ${index % 2 ? "from-right" : "from-left"}`}>
-        <div className="advantage-number" aria-hidden="true">{number}</div>
+        <div className="advantage-number" aria-hidden="true">
+          {[...number].map((digit, digitIndex) => <span key={`${number}-${digitIndex}`} className="advantage-number-digit">{digit}</span>)}
+        </div>
         <div className="advantage-copy relative z-10 pb-8 pt-7 sm:pb-10 sm:pt-9">
           <h4 className="text-xl font-black uppercase tracking-[-.035em] sm:text-2xl">{title}</h4>
           <p className="mt-3 max-w-md text-sm leading-6 text-white/52 sm:text-base">{text}</p>
