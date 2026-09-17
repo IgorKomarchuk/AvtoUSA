@@ -25,6 +25,19 @@ describe("social publishers", () => {
     expect(result.externalPostUrl).toBe("https://t.me/drive_state_test/42");
   });
 
+  it("edits the existing Telegram caption without creating a duplicate post", async () => {
+    vi.stubEnv("TELEGRAM_BOT_TOKEN", "test-token");
+    vi.stubEnv("TELEGRAM_CHANNEL_ID", "-100123");
+    vi.stubEnv("SITE_URL", "https://example.com");
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ok: true, result: { message_id: 42 } }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const { updateSocialPublication } = await import("./social-publishers");
+    await updateSocialPublication("TELEGRAM", mockVehicles[0], "Ставка: $2,950", "42");
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain("/editMessageCaption");
+    const request = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)) as { chat_id: string; message_id: number; caption: string };
+    expect(request).toMatchObject({ chat_id: "-100123", message_id: 42, caption: "Ставка: $2,950" });
+  });
+
   it("fails one missing channel cleanly without making a request", async () => {
     vi.stubEnv("FACEBOOK_PAGE_ID", "");
     vi.stubEnv("FACEBOOK_PAGE_ACCESS_TOKEN", "");

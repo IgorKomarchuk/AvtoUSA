@@ -17,15 +17,16 @@ export function vehicleSocialUrl(vehicle: Pick<VehicleData, "slug">, channel: So
 }
 
 export function renderSocialTemplate(template: string, vehicle: VehicleData, channel: SocialChannel) {
-  const bid = vehicle.buyNowPrice ?? vehicle.currentBid;
+  const currentBid = vehicle.currentBid != null && vehicle.currentBid > 0 ? vehicle.currentBid : null;
+  const buyNowPrice = vehicle.buyNowPrice != null && vehicle.buyNowPrice > 0 ? vehicle.buyNowPrice : null;
   const values: Record<(typeof variables)[number], string> = {
     year: vehicle.year?.toString() ?? "—",
     make: vehicle.make ?? "—",
     model: vehicle.model ?? "—",
     trim: vehicle.trim ?? "",
     auction: vehicle.platform === "IAAI" ? "IAAI" : "Copart",
-    currentBid: formatUsd(bid),
-    buyNowPrice: formatUsd(vehicle.buyNowPrice),
+    currentBid: currentBid == null ? "ще не розпочалась" : formatUsd(currentBid),
+    buyNowPrice: formatUsd(buyNowPrice),
     odometer: vehicle.odometerMiles == null ? "—" : `${formatNumber(vehicle.odometerMiles)} mi`,
     primaryDamage: vehicle.primaryDamage ?? "—",
     auctionDate: formatDate(vehicle.auctionDate),

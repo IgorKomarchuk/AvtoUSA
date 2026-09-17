@@ -61,6 +61,25 @@ async function telegram(vehicle: VehicleData, text: string): Promise<Publication
   return { externalPostId: messageId, externalPostUrl: username && messageId ? `https://t.me/${username}/${messageId}` : null };
 }
 
+async function updateTelegram(vehicle: VehicleData, text: string, externalPostId: string): Promise<void> {
+  const credentials = await getSocialCredentials();
+  const token = credentials.telegramBotToken;
+  const chatId = credentials.telegramChannelId;
+  if (!token || !chatId) throw new SocialPublishError("Telegram channel credentials are not configured", "NOT_CONFIGURED", false);
+  const messageId = Number(externalPostId);
+  if (!Number.isSafeInteger(messageId) || messageId <= 0) throw new SocialPublishError("Telegram message ID is invalid", "INVALID_MESSAGE_ID", false);
+  const url = vehicleSocialUrl(vehicle, "TELEGRAM");
+  const response = await fetch(`https://api.telegram.org/bot${token}/editMessageCaption`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, message_id: messageId, caption: text.slice(0, 1024), reply_markup: { inline_keyboard: [[{ text: "Залишити заявку", url }]] } }),
+    signal: AbortSignal.timeout(20_000),
+  });
+  const payload = await jsonResponse(response);
+  if (!response.ok && String(payload?.description ?? "").toLowerCase().includes("message is not modified")) return;
+  if (!response.ok || payload?.ok !== true) throw new SocialPublishError(String(payload?.description ?? `Telegram HTTP ${response.status}`), String(payload?.error_code ?? response.status), response.status >= 500 || response.status === 429);
+}
+
 async function facebook(vehicle: VehicleData, text: string): Promise<PublicationReceipt> {
   const credentials = await getSocialCredentials();
   const pageId = credentials.facebookPageId;
@@ -119,4 +138,9 @@ export async function publishToSocialChannel(channel: SocialChannel, vehicle: Ve
   if (channel === "FACEBOOK") return facebook(vehicle, text);
   if (channel === "INSTAGRAM") return instagram(vehicle, text);
   return viber(vehicle, text);
+}
+
+export async function updateSocialPublication(channel: SocialChannel, vehicle: VehicleData, text: string, externalPostId: string) {
+  if (channel !== "TELEGRAM") throw new SocialPublishError(`${channel} publication updates are not supported`, "UPDATE_NOT_SUPPORTED", false);
+  await updateTelegram(vehicle, text, externalPostId);
 }

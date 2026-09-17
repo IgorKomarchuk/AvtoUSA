@@ -7,7 +7,7 @@ import { DEFAULT_PUBLICATION_FILTERS, publicationQuality, type PublicationFilter
 import { DEFAULT_CHANNEL_CONFIG, DEFAULT_TEMPLATES, SOCIAL_CHANNELS, canQueuePublication } from "./social-config";
 import { isSocialChannelConfigured } from "./social-credentials";
 import { renderSocialTemplate } from "./social-template";
-import { publishToSocialChannel, SocialPublishError } from "./social-publishers";
+import { publishToSocialChannel, SocialPublishError, updateSocialPublication } from "./social-publishers";
 
 type VehicleWithPhotos = Prisma.VehicleGetPayload<{ include: { photos: true } }>;
 
@@ -208,6 +208,41 @@ export class AutopostingService {
       ]);
       return "failed";
     }
+  }
+
+  async refreshPublishedTelegramPosts(vehicleIds?: string[]) {
+    const prisma = getPrisma();
+    if (!prisma) return { checked: 0, updated: 0, failed: 0 };
+    const rows = await prisma.socialPublication.findMany({
+      where: {
+        channel: "TELEGRAM",
+        status: "PUBLISHED",
+        externalPostId: { not: null },
+        ...(vehicleIds?.length ? { vehicleId: { in: vehicleIds } } : {}),
+      },
+      include: { vehicle: { include: { photos: { orderBy: { position: "asc" } } } } },
+    });
+    const template = await prisma.socialTemplate.findUnique({ where: { channel: "TELEGRAM" } });
+    let updated = 0;
+    let failed = 0;
+    for (const row of rows) {
+      const postText = renderSocialTemplate(template?.body ?? DEFAULT_TEMPLATES.TELEGRAM, asVehicle(row.vehicle), "TELEGRAM");
+      if (postText === row.postText) continue;
+      try {
+        await updateSocialPublication("TELEGRAM", asVehicle(row.vehicle), postText, row.externalPostId!);
+        await prisma.socialPublication.update({ where: { id: row.id }, data: { postText, errorCode: null, errorMessage: null } });
+        updated += 1;
+      } catch (error) {
+        const code = error instanceof SocialPublishError ? error.code : "UNEXPECTED";
+        const message = error instanceof Error ? error.message : "Unknown Telegram update error";
+        await prisma.$transaction([
+          prisma.socialPublication.update({ where: { id: row.id }, data: { errorCode: code, errorMessage: message.slice(0, 1000) } }),
+          prisma.socialPublicationError.create({ data: { publicationId: row.id, vehicleId: row.vehicleId, channel: "TELEGRAM", errorCode: code, errorMessage: message.slice(0, 1000), retryCount: row.retryCount } }),
+        ]);
+        failed += 1;
+      }
+    }
+    return { checked: rows.length, updated, failed };
   }
 
   async retryFailed(maxRetries = 3) {

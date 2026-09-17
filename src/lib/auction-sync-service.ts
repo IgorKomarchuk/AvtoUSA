@@ -4,6 +4,7 @@ import { ApibaraClient, ApibaraError } from "./apibara";
 import { getActiveApibaraKey } from "./apibara-credentials";
 import { getPrisma } from "./prisma";
 import { auctionTargets, matchesAuctionSelection } from "./auction-selection";
+import { AutopostingService } from "./autoposting-service";
 import type { AuctionPlatform, SyncResult, VehicleData } from "./types";
 
 function serializable(value: unknown) {
@@ -40,6 +41,7 @@ export class AuctionSyncService {
         select: { id: true },
       });
       await this.upsertVehicle(vehicle);
+      await new AutopostingService().refreshPublishedTelegramPosts([existed?.id].filter((id): id is string => Boolean(id)));
       await prisma.auctionSyncLog.update({
         where: { id: log.id },
         data: { status: "SUCCESS", finishedAt: new Date(), apiRequests: 1, receivedRecords: 1, createdRecords: existed ? 0 : 1, updatedRecords: existed ? 1 : 0 },
@@ -114,6 +116,7 @@ export class AuctionSyncService {
           updatedRecords,
         },
       });
+      await new AutopostingService().refreshPublishedTelegramPosts();
       return { status: "SUCCESS", provider, apiRequests: 1, receivedRecords: response.vehicles.length, createdRecords, updatedRecords };
     } catch (error) {
       return this.failLog(log.id, provider, 1, error);

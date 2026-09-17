@@ -13,6 +13,16 @@ describe("social templates", () => {
     expect(text).toContain("utm_source=telegram");
   });
 
+  it("uses the current auction bid even when Buy Now is zero", () => {
+    const vehicle = { ...mockVehicles[0], currentBid: 2950, buyNowPrice: 0 };
+    expect(renderSocialTemplate("Ставка: {{currentBid}}", vehicle, "TELEGRAM")).toBe("Ставка: $2,950");
+  });
+
+  it("does not present a zero bid as a real auction price", () => {
+    const vehicle = { ...mockVehicles[0], currentBid: 0, buyNowPrice: 0 };
+    expect(renderSocialTemplate("Ставка: {{currentBid}}", vehicle, "TELEGRAM")).toBe("Ставка: ще не розпочалась");
+  });
+
   it("uses channel-specific UTM parameters", () => {
     const url = vehicleSocialUrl(mockVehicles[0], "VIBER");
     expect(url).toContain("utm_source=viber");
